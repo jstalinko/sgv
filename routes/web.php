@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -8,9 +9,7 @@ use App\Http\Controllers\KasController;
 
 use App\Http\Controllers\WargaController;
 
-Route::get('/', function () {
-    return Inertia::render('Index');
-})->name('home');
+Route::get('/',[HomeController::class,'index'])->name('home');
 
 
 Route::prefix('iuran')->name('iuran.')->group(function () {
@@ -41,7 +40,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'update' => 'dashboard.kas.update',
         'destroy' => 'dashboard.kas.destroy',
     ]);
+
+    Route::get('/dashboard/kegiatan', [\App\Http\Controllers\KegiatanController::class, 'dashboardIndex'])->name('dashboard.kegiatan.index');
+    Route::resource('/dashboard/kegiatan', \App\Http\Controllers\KegiatanController::class)->except(['index', 'create', 'show', 'edit'])->names([
+        'store' => 'dashboard.kegiatan.store',
+        'update' => 'dashboard.kegiatan.update',
+        'destroy' => 'dashboard.kegiatan.destroy',
+    ]);
+
+    Route::get('/dashboard/galeri', [\App\Http\Controllers\GaleriController::class, 'dashboardIndex'])->name('dashboard.galeri.index');
+    Route::resource('/dashboard/galeri', \App\Http\Controllers\GaleriController::class)->except(['index', 'create', 'show', 'edit'])->names([
+        'store' => 'dashboard.galeri.store',
+        'update' => 'dashboard.galeri.update',
+        'destroy' => 'dashboard.galeri.destroy',
+    ]);
 });
+
+Route::get('/kegiatan', [\App\Http\Controllers\KegiatanController::class, 'index'])->name('kegiatan.index');
+Route::get('/jadwal', [\App\Http\Controllers\KegiatanController::class, 'jadwalIndex'])->name('jadwal.index');
+Route::get('/galeri', [\App\Http\Controllers\GaleriController::class, 'index'])->name('galeri.index');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

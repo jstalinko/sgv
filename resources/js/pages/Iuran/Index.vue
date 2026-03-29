@@ -2,7 +2,8 @@
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { ref, computed } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
-import { Check, X, ChevronLeft, ChevronRight, Search, CreditCard, User, Home } from 'lucide-vue-next';
+import { Check, X, ChevronLeft, ChevronRight, Search, CreditCard, User, Home, FileText, Image as ImageIcon } from 'lucide-vue-next';
+import html2canvas from 'html2canvas';
 
 const props = defineProps<{
     warga: Array<any>;
@@ -67,6 +68,65 @@ const changeYear = (offset: number) => {
 const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
 };
+
+// ── EXPORT LOGIC ────────────────────────────────────────────────────────────────
+const generateExportText = () => {
+    const monthName = months.find(m => m.id === currentMonth)?.name.toUpperCase();
+    let result = `IURAN PERUMAHAN SGV BULAN ${monthName}\n\n`;
+    
+    props.warga.forEach((w, index) => {
+        const isPaidStatus = isPaid(w.id, currentMonth);
+        const check = isPaidStatus ? '✅' : '';
+        result += `${index + 1}. ${w.nama} (${w.no_rumah}) ${check}\n`;
+    });
+    
+    return result;
+};
+
+const exportToText = async () => {
+    const text = generateExportText();
+    try {
+        await navigator.clipboard.writeText(text);
+        alert('Teks berhasil disalin ke clipboard!');
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+        alert('Gagal menyalin teks ke clipboard.');
+    }
+};
+
+const isExporting = ref(false);
+
+const exportToImage = async () => {
+    isExporting.value = true;
+    
+    // Slight delay to ensure v-if element renders
+    setTimeout(async () => {
+        const el = document.getElementById('export-image-container');
+        if (el) {
+            try {
+                const canvas = await html2canvas(el, { 
+                    backgroundColor: '#ffffff', 
+                    scale: 2,
+                    logging: false
+                });
+                
+                const url = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Iuran_SGV_Bulan_${currentMonth}_${currentYear}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('Gagal membuat gambar export.');
+            } finally {
+                isExporting.value = false;
+            }
+        }
+    }, 100);
+};
+
 </script>
 
 <template>
@@ -113,6 +173,16 @@ const formatCurrency = (val: number) => {
                                type="text" 
                                placeholder="Cari Nama atau No. Rumah..." 
                                class="w-full pl-12 pr-4 py-3 bg-stone-50 border-none rounded-2xl focus:ring-2 focus:ring-amber-500 font-medium text-stone-700" />
+                    </div>
+                    
+                    <div class="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+                        <button @click="exportToText" class="whitespace-nowrap px-5 py-3 bg-stone-100 text-stone-600 font-bold rounded-2xl hover:bg-stone-200 transition-colors flex items-center gap-2">
+                            <FileText class="w-5 h-5 text-stone-500" /> Salin Teks
+                        </button>
+                        <button @click="exportToImage" :disabled="isExporting" class="whitespace-nowrap px-5 py-3 bg-amber-100 text-amber-700 font-bold rounded-2xl hover:bg-amber-200 transition-colors flex items-center gap-2 shadow-sm shadow-amber-200/50">
+                            <span v-if="isExporting" class="w-5 h-5 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></span>
+                            <ImageIcon v-else class="w-5 h-5 text-amber-600" /> Export Gambar
+                        </button>
                     </div>
                 </div>
 
@@ -189,6 +259,39 @@ const formatCurrency = (val: number) => {
                 </div>
             </div>
         </div>
+
+        <!-- Hidden DOM Element for Image Export -->
+        <div v-if="isExporting" class="fixed top-[-9999px] left-[-9999px] z-[-1]">
+            <div id="export-image-container" class="bg-white p-12 w-[600px] border border-stone-200 font-sans">
+                <!-- Watermark Logo SGV (Optional context) -->
+                <div class="text-center mb-8 border-b-2 border-stone-100 pb-6">
+                    <h2 class="text-3xl font-black text-stone-900 tracking-tight">IURAN PERUMAHAN SGV</h2>
+                    <p class="text-xl font-bold text-amber-600 mt-2">
+                        BULAN {{ months.find(m => m.id === currentMonth)?.name.toUpperCase() }} {{ currentYear }}
+                    </p>
+                </div>
+                
+                <div class="flex flex-col space-y-3">
+                    <div v-for="(w, index) in warga" :key="w.id" class="flex justify-between items-center text-lg">
+                        <span class="font-medium text-stone-800">
+                            {{ index + 1 }}. {{ w.nama }} ({{ w.no_rumah }})
+                        </span>
+                        <span class="text-xl" v-if="isPaid(w.id, currentMonth)">✅</span>
+                    </div>
+                </div>
+                <br>
+                <p>
+                    Iuran bisa di bayarkan melalui transfer ke rekening
+                    <b>BNI - 1802199289 an Febi Gardian Setiawan.
+</b>
+Paling lambat tgl 12 nggih Bpk Ibu 🙏
+                </p>
+                <div class="mt-10 pt-6 border-t font-medium border-stone-100 text-stone-400 text-sm text-center">
+                    Diunduh dari Sistem Informasi Perumahan SGV
+                </div>
+            </div>
+        </div>
+
     </HomeLayout>
 </template>
 

@@ -8,10 +8,10 @@ const isMenuOpen = ref(false);
 const page = usePage<SharedData>();
 
 const navigation = [
-    { name: 'Kegiatan', href: '#kegiatan', icon: Calendar },
+    { name: 'Kegiatan', href: '/jadwal', icon: Calendar },
     { name: 'Iuran', href: route('iuran.index'), icon: CreditCard },
     { name: 'Kas', href: route('kas.index'), icon: DollarSign },
-    { name: 'Galeri', href: '#galeri', icon: ImageIcon },
+    { name: 'Galeri', href: route('galeri.index'), icon: ImageIcon },
     { name: 'Tentang', href: '#tentang', icon: Info },
 ];
 </script>
@@ -37,24 +37,12 @@ const navigation = [
                         {{ item.name }}
                     </Link>
                     <div class="flex items-center space-x-4 border-l border-amber-100 pl-8 ml-4">
-                        <button class="p-2 text-stone-400 hover:text-amber-600 transition-colors">
-                            <Bell class="w-5 h-5" />
-                        </button>
+                      
                         
-                        <!-- Auth Links -->
-                        <template v-if="page.props.auth.user">
-                            <Link :href="route('logout')" method="post" as="button" class="text-stone-400 hover:text-red-500 transition-colors p-2" title="Keluar Admin">
-                                <LogOut class="w-5 h-5" />
-                            </Link>
-                        </template>
-                        <template v-else>
-                            <Link :href="route('login')" class="text-stone-400 hover:text-amber-600 transition-colors p-2" title="Masuk Admin">
-                                <LogIn class="w-5 h-5" />
-                            </Link>
-                        </template>
+                      
 
                         <Link href="/laporan" class="bg-amber-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-amber-200 hover:bg-amber-700 transition-all active:scale-95">
-                            Kontak Pengurus
+                            Hubungi
                         </Link>
                     </div>
                 </div>
@@ -82,18 +70,7 @@ const navigation = [
                     <span>{{ item.name }}</span>
                 </Link>
                 <div class="pt-4 px-4 space-y-3 border-t border-amber-50 pt-4">
-                    <template v-if="page.props.auth.user">
-                        <Link :href="route('logout')" method="post" as="button" class="flex items-center space-x-3 px-4 py-3 text-base font-bold text-red-600 hover:bg-red-50 rounded-xl w-full text-left">
-                            <LogOut class="w-5 h-5" />
-                            <span>Keluar Admin</span>
-                        </Link>
-                    </template>
-                    <template v-else>
-                        <Link :href="route('login')" class="flex items-center space-x-3 px-4 py-3 text-base font-bold text-stone-600 hover:bg-amber-50 rounded-xl">
-                            <LogIn class="w-5 h-5" />
-                            <span>Masuk Admin</span>
-                        </Link>
-                    </template>
+                  
 
                     <Link href="/laporan" class="flex justify-center bg-amber-600 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-amber-200 hover:bg-amber-700 w-full transition-all">
                         Kontak Pengurus

@@ -8,26 +8,18 @@ const footerLinks = [
     {
         title: 'Layanan Warga',
         links: [
-            { name: 'Kegiatan Sosial', href: '#kegiatan' },
-            { name: 'Iuran Bulanan', href: '#iuran' },
-            { name: 'Laporan Kas', href: '#kas' },
+            { name: 'Kegiatan', href: '/kegiatan' },
+            { name: 'Iuran Warga', href: '/iuran' },
+            { name: 'Laporan Kas', href: '/kas' },
         ],
-    },
-    {
-        title: 'Komunitas',
-        links: [
-            { name: 'Tentang Lingkungan', href: '#tentang' },
-            { name: 'Galeri Warga', href: '#galeri' },
-            { name: 'Informasi Pengurus', href: '/contact' },
-        ],
-    },
+    }
 ];
 </script>
 
 <template>
     <footer class="bg-stone-900 text-amber-50/80 pt-16 pb-8 border-t border-amber-900/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-12">
                 <!-- Brand Info -->
                 <div class="space-y-6">
                     <div>
@@ -63,11 +55,11 @@ const footerLinks = [
 
                 <!-- Contact Info -->
                 <div>
-                    <h3 class="font-bold text-amber-500 mb-6 uppercase tracking-widest text-xs">Sekretariat</h3>
+                    <h3 class="font-bold text-amber-500 mb-6 uppercase tracking-widest text-xs">ALAMAT</h3>
                     <ul class="space-y-4">
                         <li class="flex items-start space-x-3 text-sm">
                             <MapPin class="w-5 h-5 shrink-0 text-amber-500 mt-0.5" />
-                            <span>Balai Warga SGV, Jl. Utama Perumahan Suryo Green Village, No. 01</span>
+                            <span>Jl. Raya Pecangaan - Damaran , RT 03 Desa Pulodarat Kec. Pecangaan, Kab. Jepara 59462</span>
                         </li>
                         <li class="flex items-center space-x-3 text-sm">
                             <Phone class="w-5 h-5 text-amber-500" />

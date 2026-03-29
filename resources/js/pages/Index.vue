@@ -1,7 +1,11 @@
-<script setup lang="ts">
+<script setup>
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { ArrowRight, Heart, ShieldCheck, Gem, Users, Calendar, DollarSign, Image as ImageIcon } from 'lucide-vue-next';
-
+const prop = defineProps({props:Object});
+const kegiatan = prop.props.kegiatan;
+const kegiatanMendatang = prop.props.kegiatan_mendatang;
+const warga = prop.props.warga;
+const galeris = prop.props.galeri;
 const communityFeatures = [
     {
         title: 'Kegiatan Warga',
@@ -55,7 +59,7 @@ const communityFeatures = [
                                 <span>Informasi Warga</span>
                                 <ArrowRight class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </a>
-                            <a href="#kas" class="flex items-center justify-center space-x-2 bg-white text-stone-700 border-2 border-amber-100 px-8 py-4 rounded-2xl font-bold text-lg hover:border-amber-400 hover:bg-amber-50/30 transition-all active:scale-95">
+                            <a href="/kas" class="flex items-center justify-center space-x-2 bg-white text-stone-700 border-2 border-amber-100 px-8 py-4 rounded-2xl font-bold text-lg hover:border-amber-400 hover:bg-amber-50/30 transition-all active:scale-95">
                                 <span>Laporan Kas</span>
                             </a>
                         </div>
@@ -63,17 +67,14 @@ const communityFeatures = [
                         <!-- Community Stats -->
                         <div class="grid grid-cols-3 gap-8 pt-6 border-t border-amber-100">
                             <div>
-                                <p class="text-3xl font-black text-stone-900">150+</p>
-                                <p class="text-sm text-stone-500 font-medium tracking-tight">Kepala Keluarga</p>
+                                <p class="text-3xl font-black text-stone-900">{{ warga }}</p>
+                                <p class="text-sm text-stone-500 font-medium tracking-tight">Rumah</p>
                             </div>
                             <div>
-                                <p class="text-3xl font-black text-stone-900">12</p>
-                                <p class="text-sm text-stone-500 font-medium tracking-tight">Program Aktif</p>
+                                <p class="text-3xl font-black text-stone-900">{{ kegiatan }}</p>
+                                <p class="text-sm text-stone-500 font-medium tracking-tight">Kegiatan</p>
                             </div>
-                            <div>
-                                <p class="text-3xl font-black text-stone-900">0%</p>
-                                <p class="text-sm text-stone-500 font-medium tracking-tight">Tingkat Insiden</p>
-                            </div>
+                            
                         </div>
                     </div>
 
@@ -102,6 +103,34 @@ const communityFeatures = [
                                     "Membangun lingkungan asri dimulai dari kepedulian setiap warga."
                                 </p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Galeri Slider Marquee -->
+        <section v-if="galeris && galeris.length > 0" class="py-8 bg-white overflow-hidden w-full relative group shadow-sm z-10 border-b border-stone-100">
+            <!-- Fade Edges -->
+            <div class="absolute left-0 top-0 w-24 md:w-48 h-full bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute right-0 top-0 w-24 md:w-48 h-full bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+            
+            <div class="flex flex-nowrap shrink-0 overflow-hidden w-full">
+                <!-- Track 1 -->
+                <div class="flex flex-nowrap gap-4 md:gap-8 items-center min-w-full animate-marquee hover:[animation-play-state:paused] group-hover:[animation-play-state:paused] pr-4 md:pr-8">
+                    <div v-for="g in galeris" :key="'a-'+g.id" class="relative w-60 h-40 md:w-80 md:h-56 rounded-3xl overflow-hidden shrink-0 shadow-lg cursor-pointer transform hover:-translate-y-2 transition-all duration-300">
+                        <img :src="'/storage/' + g.gambar" :alt="g.judul" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 md:p-6 pt-12">
+                            <p class="text-white font-black text-sm md:text-base leading-tight truncate drop-shadow-md">{{ g.judul }}</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Track 2 (Clone for infinite effect) -->
+                <div class="flex flex-nowrap gap-4 md:gap-8 items-center min-w-full animate-marquee hover:[animation-play-state:paused] group-hover:[animation-play-state:paused] pr-4 md:pr-8" aria-hidden="true">
+                    <div v-for="g in galeris" :key="'b-'+g.id" class="relative w-60 h-40 md:w-80 md:h-56 rounded-3xl overflow-hidden shrink-0 shadow-lg cursor-pointer transform hover:-translate-y-2 transition-all duration-300">
+                        <img :src="'/storage/' + g.gambar" :alt="g.judul" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 md:p-6 pt-12">
+                            <p class="text-white font-black text-sm md:text-base leading-tight truncate drop-shadow-md">{{ g.judul }}</p>
                         </div>
                     </div>
                 </div>
@@ -144,26 +173,59 @@ const communityFeatures = [
         <section id="galeri" class="py-24 bg-[#FCFAF2] overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <!-- Photo Grid -->
                     <div class="order-2 lg:order-1 relative">
-                        <!-- Overlapping Images Placeholder -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-4 pt-12">
-                                <div class="aspect-square rounded-3xl bg-amber-100/50 border-2 border-white shadow-xl overflow-hidden relative group">
-                                    <div class="absolute inset-0 bg-stone-200 animate-pulse" v-if="false"></div>
-                                    <div class="absolute inset-0 flex items-center justify-center text-amber-300 p-8">
-                                        <ImageIcon class="w-12 h-12" />
-                                    </div>
+                        <!-- Has photos from DB -->
+                        <div v-if="galeris && galeris.length > 0" class="grid grid-cols-2 gap-4">
+                            <!-- Column A — offset down -->
+                            <div class="space-y-4 pt-10">
+                                <div class="aspect-square rounded-3xl overflow-hidden shadow-xl ring-4 ring-white group">
+                                    <img :src="'/storage/' + galeris[0].gambar" :alt="galeris[0].judul"
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 </div>
-                                <div class="aspect-[3/4] rounded-3xl bg-amber-200 shadow-xl overflow-hidden"></div>
+                                <div v-if="galeris[2]" class="aspect-[3/4] rounded-3xl overflow-hidden shadow-xl ring-4 ring-white group">
+                                    <img :src="'/storage/' + galeris[2].gambar" :alt="galeris[2].judul"
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                </div>
+                                <div v-else class="aspect-[3/4] rounded-3xl bg-amber-100 ring-4 ring-white shadow-xl"></div>
                             </div>
+                            <!-- Column B -->
                             <div class="space-y-4">
-                                <div class="aspect-[3/4] rounded-3xl bg-stone-800 shadow-xl overflow-hidden flex items-end p-6">
-                                    <p class="text-white font-bold text-sm">Dokumentasi QR <br/>Warga 2025</p>
+                                <div v-if="galeris[1]" class="aspect-[3/4] rounded-3xl overflow-hidden shadow-xl ring-4 ring-white group">
+                                    <img :src="'/storage/' + galeris[1].gambar" :alt="galeris[1].judul"
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 </div>
-                                <div class="aspect-square rounded-3xl bg-amber-50 border-2 border-amber-100 shadow-xl"></div>
+                                <div v-else class="aspect-[3/4] rounded-3xl bg-stone-200 ring-4 ring-white shadow-xl"></div>
+                                <div v-if="galeris[3]" class="aspect-square rounded-3xl overflow-hidden shadow-xl ring-4 ring-white group">
+                                    <img :src="'/storage/' + galeris[3].gambar" :alt="galeris[3].judul"
+                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                </div>
+                                <div v-else class="aspect-square rounded-3xl bg-amber-50 border-2 border-amber-100 ring-4 ring-white shadow-xl"></div>
                             </div>
                         </div>
+
+                        <!-- Empty State - no photos yet -->
+                        <div v-else class="grid grid-cols-2 gap-4">
+                            <div class="space-y-4 pt-10">
+                                <div class="aspect-square rounded-3xl bg-amber-100/50 border-2 border-white shadow-xl flex items-center justify-center">
+                                    <ImageIcon class="w-10 h-10 text-amber-300" />
+                                </div>
+                                <div class="aspect-[3/4] rounded-3xl bg-amber-200/40 shadow-xl ring-4 ring-white"></div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="aspect-[3/4] rounded-3xl bg-stone-200/50 shadow-xl ring-4 ring-white"></div>
+                                <div class="aspect-square rounded-3xl bg-amber-50 border-2 border-amber-100 shadow-xl ring-4 ring-white"></div>
+                            </div>
+                        </div>
+
+                        <!-- Photo count badge -->
+                        <div v-if="galeris && galeris.length > 4"
+                             class="absolute bottom-4 right-4 px-4 py-2 bg-stone-900/80 backdrop-blur-sm text-white text-xs font-black rounded-full">
+                            +{{ galeris.length - 4 }} Foto Lainnya
+                        </div>
                     </div>
+
+                    <!-- Text Content -->
                     <div class="order-1 lg:order-2 space-y-8">
                         <div class="p-2 bg-amber-100 rounded-lg inline-block">
                             <Gem class="w-6 h-6 text-amber-600" />
@@ -172,8 +234,18 @@ const communityFeatures = [
                         <p class="text-lg text-stone-500 leading-relaxed">
                             Momen-momen berharga saat gotong royong, perayaan hari besar, hingga keceriaan anak-anak di taman bermain. Koleksi dokumentasi visual perjalanan komunitas kita.
                         </p>
+                        <div v-if="galeris && galeris.length > 0" class="flex items-center gap-3">
+                            <div class="flex -space-x-2">
+                                <img v-for="g in galeris.slice(0,3)" :key="g.id"
+                                     :src="'/storage/' + g.gambar"
+                                     class="w-8 h-8 rounded-full object-cover ring-2 ring-white" />
+                            </div>
+                            <p class="text-sm font-bold text-stone-500">
+                                <span class="text-stone-900">{{ galeris.length }}</span> foto telah diunggah
+                            </p>
+                        </div>
                         <div class="pt-4 flex flex-wrap gap-4">
-                             <a href="/galeri" class="bg-amber-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-amber-700 transition-colors shadow-lg shadow-amber-200">
+                            <a href="/galeri" class="bg-amber-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-amber-700 transition-colors shadow-lg shadow-amber-200">
                                 Jelajahi Foto
                             </a>
                         </div>
@@ -197,7 +269,7 @@ const communityFeatures = [
                             Mari Ikut Serta Membangun <br />
                             Suryo Green Village <br />
                             <span class="text-amber-500">Menjadi Lebih Baik</span>
-                        </h2>
+                    </h2>
                         <p class="text-stone-400 text-lg leading-relaxed">
                             Punya saran atau laporan terkait lingkungan? Tim pengurus siap membantu dan menampung aspirasi setiap warga untuk kenyamanan bersama.
                         </p>
@@ -206,8 +278,8 @@ const communityFeatures = [
                                class="bg-amber-600 text-white px-10 py-5 rounded-3xl font-bold text-lg hover:bg-amber-700 hover:scale-105 transition-all shadow-xl shadow-amber-900/40">
                                 WhatsApp Pengurus
                             </a>
-                            <a href="/pengumuman" class="bg-stone-800 text-white border-2 border-stone-700 px-10 py-5 rounded-3xl font-bold text-lg hover:bg-stone-700 transition-all">
-                                Lihat Pengumuman
+                            <a href="/galeri" class="bg-stone-800 text-white border-2 border-stone-700 px-10 py-5 rounded-3xl font-bold text-lg hover:bg-stone-700 transition-all">
+                                Lihat Galeri
                             </a>
                         </div>
                     </div>
@@ -216,4 +288,17 @@ const communityFeatures = [
         </section>
     </HomeLayout>
 </template>
-e>
+
+<style scoped>
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+.animate-marquee {
+    animation: marquee 30s linear infinite;
+}
+</style>

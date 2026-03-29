@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HomeLayout from '@/layouts/HomeLayout.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import { TrendingUp, TrendingDown, Wallet, Calendar, Plus, X, Search, Filter, ArrowUpRight, ArrowDownLeft } from 'lucide-vue-next';
 
@@ -13,6 +13,9 @@ const props = defineProps<{
     totalKeluar: number;
     saldo: number;
     can_edit: boolean;
+    filterBulan: number | null;
+    filterTahun: number | null;
+    availableYears: number[];
 }>();
 
 const showAddExpense = ref(false);
@@ -48,6 +51,30 @@ const formatCurrency = (val: number) => {
 const formatDate = (dateStr: string) => {
     return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(new Date(dateStr));
 };
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+const selectedBulan = ref<string>(props.filterBulan ? String(props.filterBulan) : '');
+const selectedTahun = ref<string>(props.filterTahun ? String(props.filterTahun) : '');
+
+const bulanNames = [
+    '', 'Januari','Februari','Maret','April','Mei','Juni',
+    'Juli','Agustus','September','Oktober','November','Desember'
+];
+
+const applyFilter = () => {
+    router.get(route('kas.index'), {
+        bulan: selectedBulan.value || undefined,
+        tahun: selectedTahun.value || undefined,
+    }, { preserveState: true, replace: true });
+};
+
+const resetFilter = () => {
+    selectedBulan.value = '';
+    selectedTahun.value = '';
+    router.get(route('kas.index'), {}, { preserveState: false, replace: true });
+};
+
+const isFiltered = () => !!selectedBulan.value || !!selectedTahun.value;
 </script>
 
 <template>
@@ -110,13 +137,33 @@ const formatDate = (dateStr: string) => {
 
                 <!-- Transaction History -->
                 <div class="bg-white rounded-[3rem] border border-amber-100 overflow-hidden shadow-sm">
-                    <div class="p-8 border-b border-amber-50 flex justify-between items-center">
-                        <h3 class="text-xl font-black text-stone-900">Riwayat Transaksi</h3>
-                        <div class="flex space-x-4">
-                            <div class="relative">
-                                <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-                                <input type="text" placeholder="Cari transaksi..." class="pl-10 pr-4 py-2 bg-stone-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 w-64" />
-                            </div>
+                    <div class="p-8 border-b border-amber-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="flex items-center gap-4">
+                            <h3 class="text-xl font-black text-stone-900">Riwayat Transaksi</h3>
+                            <span v-if="isFiltered()" class="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black rounded-full uppercase tracking-wider">
+                                Filter Aktif
+                            </span>
+                        </div>
+                        <!-- Filter Controls -->
+                        <div class="flex flex-wrap items-center gap-3">
+                            <select v-model="selectedBulan"
+                                    class="h-10 px-4 bg-stone-50 border-none rounded-xl text-sm font-bold text-stone-600 focus:ring-2 focus:ring-amber-500 cursor-pointer">
+                                <option value="">Semua Bulan</option>
+                                <option v-for="i in 12" :key="i" :value="String(i)">{{ bulanNames[i] }}</option>
+                            </select>
+                            <select v-model="selectedTahun"
+                                    class="h-10 px-4 bg-stone-50 border-none rounded-xl text-sm font-bold text-stone-600 focus:ring-2 focus:ring-amber-500 cursor-pointer">
+                                <option value="">Semua Tahun</option>
+                                <option v-for="y in availableYears" :key="y" :value="String(y)">{{ y }}</option>
+                            </select>
+                            <button @click="applyFilter"
+                                    class="h-10 px-5 bg-stone-900 text-white rounded-xl text-sm font-bold hover:bg-stone-800 transition-colors flex items-center gap-2">
+                                <Filter class="w-3.5 h-3.5" /> Terapkan
+                            </button>
+                            <button v-if="isFiltered()" @click="resetFilter"
+                                    class="h-10 px-4 bg-stone-100 text-stone-500 rounded-xl text-sm font-bold hover:bg-stone-200 transition-colors">
+                                Reset
+                            </button>
                         </div>
                     </div>
 

@@ -24,7 +24,7 @@ defineProps<{
         <Footer />
 
         <!-- Floating Action Button for Important Info -->
-        <a href="#kegiatan" 
+        <a href="#" 
            class="fixed bottom-6 right-6 z-40 bg-amber-600 text-white p-4 rounded-2xl shadow-2xl hover:bg-amber-700 hover:scale-110 active:scale-95 transition-all"
            aria-label="Info Warga">
             <svg class="w-6 h-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24">

@@ -3,43 +3,66 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Kas;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
 class KasController extends Controller
 {
-    public function index(Request $request)
+    private function buildFilteredData(Request $request): array
     {
-        $kas = Kas::orderByDesc('tanggal')->orderByDesc('created_at')->paginate(20);
-        
-        $totalMasuk = Kas::where('type', 'masuk')->sum('jumlah');
-        $totalKeluar = Kas::where('type', 'keluar')->sum('jumlah');
-        $saldo = $totalMasuk - $totalKeluar;
+        $bulan = $request->input('bulan'); // 1-12 or null
+        $tahun = $request->input('tahun'); // e.g. 2026 or null
 
-        return Inertia::render('Kas/Index', [
+        $query = Kas::query();
+
+        if ($bulan) {
+            // SQLite-compatible: strftime('%m', tanggal) returns zero-padded month
+            $query->whereRaw("strftime('%m', tanggal) = ?", [str_pad($bulan, 2, '0', STR_PAD_LEFT)]);
+        }
+        if ($tahun) {
+            $query->whereRaw("strftime('%Y', tanggal) = ?", [(string) $tahun]);
+        }
+
+        $kas = (clone $query)->orderByDesc('tanggal')->orderBy('id', 'desc')->paginate(20)->withQueryString();
+
+        // Period-specific totals
+        $totalMasuk = (clone $query)->where('type', 'masuk')->sum('jumlah');
+        $totalKeluar = (clone $query)->where('type', 'keluar')->sum('jumlah');
+
+        // Saldo is ALWAYS the running all-time balance
+        $allMasuk = Kas::where('type', 'masuk')->sum('jumlah');
+        $allKeluar = Kas::where('type', 'keluar')->sum('jumlah');
+        $saldo = $allMasuk - $allKeluar;
+
+        // Available years from data — SQLite compatible
+        $availableYears = Kas::selectRaw("strftime('%Y', tanggal) as year")
+            ->groupBy('year')
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        return [
             'kas' => $kas,
             'totalMasuk' => (float) $totalMasuk,
             'totalKeluar' => (float) $totalKeluar,
             'saldo' => (float) $saldo,
-            'can_edit' => auth()->check(),
-        ]);
+            'filterBulan' => $bulan ? (int) $bulan : null,
+            'filterTahun' => $tahun ? (int) $tahun : null,
+            'availableYears' => $availableYears,
+        ];
+    }
+
+    public function index(Request $request)
+    {
+        return Inertia::render('Kas/Index', array_merge(
+            $this->buildFilteredData($request),
+            ['can_edit' => auth()->check()]
+        ));
     }
 
     public function dashboardIndex(Request $request)
     {
-        $kas = Kas::orderByDesc('tanggal')->orderByDesc('created_at')->paginate(20);
-        
-        $totalMasuk = Kas::where('type', 'masuk')->sum('jumlah');
-        $totalKeluar = Kas::where('type', 'keluar')->sum('jumlah');
-        $saldo = $totalMasuk - $totalKeluar;
-
-        return Inertia::render('Dashboard/Kas/Index', [
-            'kas' => $kas,
-            'totalMasuk' => (float) $totalMasuk,
-            'totalKeluar' => (float) $totalKeluar,
-            'saldo' => (float) $saldo,
-        ]);
+        return Inertia::render('Dashboard/Kas/Index', $this->buildFilteredData($request));
     }
 
     public function store(Request $request)

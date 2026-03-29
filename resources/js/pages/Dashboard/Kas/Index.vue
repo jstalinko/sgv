@@ -4,7 +4,7 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { type BreadcrumbItem } from '@/types';
 import { 
-    Wallet, Calendar, Plus, X, Search, 
+    Wallet, Calendar, Plus, X, Search, Filter,
     ArrowUpRight, ArrowDownLeft, Pencil, 
     Trash2, MoreHorizontal, Image as ImageIcon,
     FileText, Tag, Banknote
@@ -38,6 +38,9 @@ const props = defineProps<{
     totalMasuk: number;
     totalKeluar: number;
     saldo: number;
+    filterBulan: number | null;
+    filterTahun: number | null;
+    availableYears: number[];
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -87,15 +90,21 @@ const handleFileUpload = (e: Event) => {
 
 const submit = () => {
     if (editingTransaction.value) {
-        // Inertia requirement for multipart/form-data with PUT: use POST and _method: 'PUT'
-        form.post(route('dashboard.kas.update', editingTransaction.value.id), {
-            forceFormData: true,
+        // Inertia requirement for multipart/form-data with PUT: use POST and append _method: 'PUT'
+        // We use router.post directly to have better control over transform/data
+        router.post(route('dashboard.kas.update', editingTransaction.value.id), {
             _method: 'PUT',
+            ...form.data(),
+            bukti: form.bukti, // Ensure file is included
+        }, {
+            forceFormData: true,
             onSuccess: () => {
                 showModal.value = false;
                 form.reset();
             },
-        } as any);
+            onBefore: () => form.processing = true,
+            onFinish: () => form.processing = false,
+        });
     } else {
         form.post(route('dashboard.kas.store'), {
             onSuccess: () => {
@@ -133,6 +142,30 @@ const formatCurrency = (val: number) => {
 const formatDate = (dateStr: string) => {
     return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(new Date(dateStr));
 };
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+const selectedBulan = ref<string>(props.filterBulan ? String(props.filterBulan) : '');
+const selectedTahun = ref<string>(props.filterTahun ? String(props.filterTahun) : '');
+
+const bulanNames = [
+    '', 'Januari','Februari','Maret','April','Mei','Juni',
+    'Juli','Agustus','September','Oktober','November','Desember'
+];
+
+const applyFilter = () => {
+    router.get(route('dashboard.kas.index'), {
+        bulan: selectedBulan.value || undefined,
+        tahun: selectedTahun.value || undefined,
+    }, { preserveState: true, replace: true });
+};
+
+const resetFilter = () => {
+    selectedBulan.value = '';
+    selectedTahun.value = '';
+    router.get(route('dashboard.kas.index'), {}, { preserveState: false, replace: true });
+};
+
+const isFiltered = () => !!selectedBulan.value || !!selectedTahun.value;
 </script>
 
 <template>
@@ -200,13 +233,31 @@ const formatDate = (dateStr: string) => {
 
             <!-- Transaction Table -->
             <div class="bg-card border rounded-[2.5rem] shadow-sm overflow-hidden mt-8">
-                <div class="p-8 border-b bg-muted/30 flex justify-between items-center">
-                    <h3 class="text-lg font-black text-foreground tracking-tight">Riwayat Transaksi Lengkap</h3>
-                    <div class="flex items-center gap-4">
-                        <div class="relative w-64">
-                            <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input placeholder="Cari transaksi..." class="pl-10 h-10 border-none bg-background rounded-xl focus-visible:ring-amber-500" />
-                        </div>
+                <div class="p-8 border-b bg-muted/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-lg font-black text-foreground tracking-tight">Riwayat Transaksi Lengkap</h3>
+                        <span v-if="isFiltered()" class="px-2.5 py-1 bg-amber-100 text-amber-700 text-[9px] font-black rounded-full uppercase tracking-wider">
+                            Filter Aktif
+                        </span>
+                    </div>
+                    <!-- Filter Controls -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select v-model="selectedBulan"
+                                class="h-10 px-4 bg-background border border-border rounded-xl text-sm font-bold text-foreground focus:ring-2 focus:ring-amber-500 cursor-pointer">
+                            <option value="">Semua Bulan</option>
+                            <option v-for="i in 12" :key="i" :value="String(i)">{{ bulanNames[i] }}</option>
+                        </select>
+                        <select v-model="selectedTahun"
+                                class="h-10 px-4 bg-background border border-border rounded-xl text-sm font-bold text-foreground focus:ring-2 focus:ring-amber-500 cursor-pointer">
+                            <option value="">Semua Tahun</option>
+                            <option v-for="y in availableYears" :key="y" :value="String(y)">{{ y }}</option>
+                        </select>
+                        <Button @click="applyFilter" variant="outline" class="h-10 px-4 gap-2 rounded-xl border-amber-200 text-amber-700 hover:bg-amber-50 font-bold text-xs">
+                            <Filter class="w-3.5 h-3.5" /> Terapkan
+                        </Button>
+                        <Button v-if="isFiltered()" @click="resetFilter" variant="ghost" class="h-10 px-4 rounded-xl font-bold text-xs text-muted-foreground">
+                            Reset
+                        </Button>
                     </div>
                 </div>
 
