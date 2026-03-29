@@ -1,0 +1,210 @@
+<script setup lang="ts">
+import HomeLayout from '@/layouts/HomeLayout.vue';
+import { ref, computed } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
+import { Check, X, ChevronLeft, ChevronRight, Search, CreditCard, User, Home } from 'lucide-vue-next';
+
+const props = defineProps<{
+    warga: Array<any>;
+    tahun: number;
+    amount: number;
+    can_edit: boolean;
+}>();
+
+const currentMonth = new Date().getMonth() + 1;
+const currentYear = new Date().getFullYear();
+
+const isCurrentMonth = (monthId: number) => {
+    return props.tahun === currentYear && monthId === currentMonth;
+};
+
+const months = [
+// ... (keep current months)
+    { id: 1, name: 'Januari' },
+    { id: 2, name: 'Februari' },
+    { id: 3, name: 'Maret' },
+    { id: 4, name: 'April' },
+    { id: 5, name: 'Mei' },
+    { id: 6, name: 'Juni' },
+    { id: 7, name: 'Juli' },
+    { id: 8, name: 'Agustus' },
+    { id: 9, name: 'September' },
+    { id: 10, name: 'Oktober' },
+    { id: 11, name: 'November' },
+    { id: 12, name: 'Desember' },
+];
+
+const searchQuery = ref('');
+const filteredWarga = computed(() => {
+    if (!searchQuery.value) return props.warga;
+    const q = searchQuery.value.toLowerCase();
+    return props.warga.filter(w => 
+        w.nama.toLowerCase().includes(q) || 
+        w.no_rumah.toLowerCase().includes(q)
+    );
+});
+
+const isPaid = (wargaId: number, monthId: number) => {
+    const wargaObj = props.warga.find(w => w.id === wargaId);
+    if (!wargaObj) return false;
+    return wargaObj.iurans.some((i: any) => i.bulan === monthId);
+};
+
+const togglePayment = (wargaId: number, monthId: number) => {
+    router.post(route('iuran.toggle'), {
+        warga_id: wargaId,
+        bulan: monthId,
+        tahun: props.tahun
+    }, {
+        preserveScroll: true,
+    });
+};
+
+const changeYear = (offset: number) => {
+    router.get(route('iuran.index'), { tahun: props.tahun + offset });
+};
+
+const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+};
+</script>
+
+<template>
+    <HomeLayout title="Iuran Warga">
+        <div class="py-12 bg-amber-50/30 min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Header -->
+                <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <h1 class="text-4xl font-black text-stone-900 tracking-tight">Iuran Bulanan <span class="text-amber-600">Warga</span></h1>
+                        <p class="text-stone-500 font-medium">Monitoring pembayaran iuran rutin perumahan Suryo Green Village.</p>
+                    </div>
+                    
+                    <div class="flex items-center bg-white p-2 rounded-2xl shadow-sm border border-amber-100">
+                        <button @click="changeYear(-1)" class="p-2 hover:bg-amber-50 rounded-xl transition-colors">
+                            <ChevronLeft class="w-5 h-5 text-stone-400" />
+                        </button>
+                        <span class="px-6 text-xl font-black text-stone-800">{{ tahun }}</span>
+                        <button @click="changeYear(1)" class="p-2 hover:bg-amber-50 rounded-xl transition-colors">
+                            <ChevronRight class="w-5 h-5 text-stone-400" />
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-amber-50 flex items-center space-x-4">
+                        <div class="p-3 bg-amber-100 rounded-2xl text-amber-600">
+                            <CreditCard class="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-amber-600 uppercase tracking-widest">Besar Iuran</p>
+                            <p class="text-2xl font-black text-stone-900">{{ formatCurrency(amount) }} / Bln</p>
+                        </div>
+                    </div>
+                    <!-- Add more stats if needed -->
+                </div>
+
+                <!-- Table Controls -->
+                <div class="bg-white rounded-t-[2.5rem] border-x border-t border-amber-100 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="relative w-full md:w-96">
+                        <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                        <input v-model="searchQuery" 
+                               type="text" 
+                               placeholder="Cari Nama atau No. Rumah..." 
+                               class="w-full pl-12 pr-4 py-3 bg-stone-50 border-none rounded-2xl focus:ring-2 focus:ring-amber-500 font-medium text-stone-700" />
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="bg-white rounded-b-[2.5rem] border border-amber-100 overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-stone-50 border-y border-amber-100">
+                                    <th class="p-6 text-xs font-black text-stone-500 uppercase tracking-widest sticky left-0 bg-stone-50 z-10 border-r border-amber-50">Rumah</th>
+                                    <th class="p-4 text-xs font-black text-stone-500 uppercase tracking-widest sticky left-[88px] bg-stone-50 z-10 border-r border-amber-50">Blok</th>
+                                    <th class="p-6 text-xs font-black text-stone-500 uppercase tracking-widest sticky left-[150px] bg-stone-50 z-10 border-r border-amber-100">Nama</th>
+                                    <th v-for="month in months" :key="month.id" 
+                                        class="p-4 text-xs font-black uppercase tracking-widest text-center min-w-[100px]"
+                                        :class="isCurrentMonth(month.id) ? 'text-amber-600 bg-amber-50/50' : 'text-stone-500'">
+                                        {{ month.name.substring(0, 3) }}
+                                        <div v-if="isCurrentMonth(month.id)" class="text-[8px] mt-1 text-amber-500">INI BULAN INI</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-amber-50">
+                                <tr v-for="w in filteredWarga" :key="w.id" class="hover:bg-amber-50/30 transition-colors group">
+                                    <td class="p-6 text-sm font-black text-amber-700 sticky left-0 bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-50">
+                                        {{ w.no_rumah }}
+                                    </td>
+                                    <td class="p-4 text-xs font-bold text-stone-500 sticky left-[88px] bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-50">
+                                        {{ w.blok }}
+                                    </td>
+                                    <td class="p-6 text-sm font-bold text-stone-700 sticky left-[150px] bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-100 uppercase">
+                                        {{ w.nama }}
+                                    </td>
+                                    <td v-for="month in months" :key="month.id" 
+                                        class="p-4 text-center"
+                                        :class="{ 'bg-amber-50/20': isCurrentMonth(month.id) }">
+                                        <button v-if="can_edit"
+                                                @click="togglePayment(w.id, month.id)" 
+                                                class="w-10 h-10 rounded-xl flex items-center justify-center mx-auto transition-all active:scale-90"
+                                                :class="isPaid(w.id, month.id) 
+                                                    ? 'bg-amber-600 text-white shadow-lg shadow-amber-200' 
+                                                    : 'bg-stone-100 text-stone-300 hover:bg-stone-200'">
+                                            <Check v-if="isPaid(w.id, month.id)" class="w-6 h-6 stroke-[3]" />
+                                            <X v-else class="w-4 h-4 opacity-30" />
+                                        </button>
+                                        <div v-else class="w-10 h-10 rounded-xl flex items-center justify-center mx-auto"
+                                             :class="isPaid(w.id, month.id) ? 'text-amber-600 bg-amber-100' : 'text-stone-200'">
+                                            <Check v-if="isPaid(w.id, month.id)" class="w-6 h-6 stroke-[3]" />
+                                            <X v-else class="w-4 h-4 opacity-30" />
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr v-if="filteredWarga.length === 0">
+                                    <td colspan="14" class="p-20 text-center space-y-4">
+                                        <div class="p-4 bg-stone-50 rounded-full inline-block">
+                                            <User class="w-12 h-12 text-stone-200" />
+                                        </div>
+                                        <p class="text-stone-400 font-bold">Data warga tidak ditemukan.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="mt-8 flex items-center space-x-6">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-amber-600"></div>
+                        <span class="text-xs font-bold text-stone-500 uppercase tracking-widest">Sudah Bayar</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-stone-200"></div>
+                        <span class="text-xs font-bold text-stone-500 uppercase tracking-widest">Belum Bayar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </HomeLayout>
+</template>
+
+<style scoped>
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #fbbf24;
+    border-radius: 10px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #d97706;
+}
+</style>
