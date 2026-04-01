@@ -63,7 +63,7 @@ class IuranController extends Controller
                 // Uncheck: Delete Iuran and Kas
                 $iuran->kas()->delete();
                 $iuran->delete();
-                return response()->json(['message' => 'Pembayaran dibatalkan']);
+                return redirect()->route('dashboard.iuran.index')->with('success','Pembayaran berhasil di batalkan');
             } else {
                 // Check: Create Iuran and Kas
                 $iuran = Iuran::create([
