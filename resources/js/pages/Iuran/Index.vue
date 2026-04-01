@@ -193,7 +193,6 @@ const exportToImage = async () => {
                             <thead>
                                 <tr class="bg-stone-50 border-y border-amber-100">
                                     <th class="p-6 text-xs font-black text-stone-500 uppercase tracking-widest sticky left-0 bg-stone-50 z-10 border-r border-amber-50">Rumah</th>
-                                    <th class="p-4 text-xs font-black text-stone-500 uppercase tracking-widest sticky left-[88px] bg-stone-50 z-10 border-r border-amber-50">Blok</th>
                                     <th class="p-6 text-xs font-black text-stone-500 uppercase tracking-widest sticky left-[150px] bg-stone-50 z-10 border-r border-amber-100">Nama</th>
                                     <th v-for="month in months" :key="month.id" 
                                         class="p-4 text-xs font-black uppercase tracking-widest text-center min-w-[100px]"
@@ -206,17 +205,14 @@ const exportToImage = async () => {
                             <tbody class="divide-y divide-amber-50">
                                 <tr v-for="w in filteredWarga" :key="w.id" class="hover:bg-amber-50/30 transition-colors group">
                                     <td class="p-6 text-sm font-black text-amber-700 sticky left-0 bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-50">
-                                        {{ w.no_rumah }}
-                                    </td>
-                                    <td class="p-4 text-xs font-bold text-stone-500 sticky left-[88px] bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-50">
-                                        {{ w.blok }}
+                                        {{w.blok}} / {{ w.no_rumah }}
                                     </td>
                                     <td class="p-6 text-sm font-bold text-stone-700 sticky left-[150px] bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-100 uppercase">
                                         {{ w.nama }}
                                     </td>
                                     <td v-for="month in months" :key="month.id" 
                                         class="p-4 text-center"
-                                        :class="{ 'bg-amber-50/20': isCurrentMonth(month.id) }">
+                                        :class="{ 'bg-amber-400': isCurrentMonth(month.id) }">
                                         <button v-if="can_edit"
                                                 @click="togglePayment(w.id, month.id)" 
                                                 class="w-10 h-10 rounded-xl flex items-center justify-center mx-auto transition-all active:scale-90"

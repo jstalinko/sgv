@@ -2,7 +2,9 @@
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { ref, watch } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
-import { TrendingUp, TrendingDown, Wallet, Calendar, Plus, X, Search, Filter, ArrowUpRight, ArrowDownLeft } from 'lucide-vue-next';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { TrendingUp, TrendingDown, Wallet, Calendar, Plus, X, Search, Filter, ArrowUpRight, ArrowDownLeft, Image as ImageIcon, FileText } from 'lucide-vue-next';
 
 const props = defineProps<{
     kas: {
@@ -71,10 +73,73 @@ const applyFilter = () => {
 const resetFilter = () => {
     selectedBulan.value = '';
     selectedTahun.value = '';
-    router.get(route('kas.index'), {}, { preserveState: false, replace: true });
+    router.get(route('kas.index'), { all: 1 }, { preserveState: false, replace: true });
 };
 
 const isFiltered = () => !!selectedBulan.value || !!selectedTahun.value;
+
+const isExporting = ref(false);
+
+const exportToImage = async () => {
+    isExporting.value = true;
+    
+    setTimeout(async () => {
+        const el = document.getElementById('export-kas-container');
+        if (el) {
+            try {
+                const canvas = await html2canvas(el, { 
+                    backgroundColor: '#ffffff', 
+                    scale: 2,
+                    logging: false
+                });
+                
+                const url = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Kas_SGV_${selectedBulan.value || 'All'}_${selectedTahun.value || 'All'}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('Gagal membuat gambar export.');
+            } finally {
+                isExporting.value = false;
+            }
+        }
+    }, 100);
+};
+
+const exportToPdf = async () => {
+    isExporting.value = true;
+    
+    setTimeout(async () => {
+        const el = document.getElementById('export-kas-container');
+        if (el) {
+            try {
+                const canvas = await html2canvas(el, { 
+                    backgroundColor: '#ffffff', 
+                    scale: 2,
+                    logging: false
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'px',
+                    format: [canvas.width / 2, canvas.height / 2]
+                });
+                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
+                pdf.save(`Kas_SGV_${selectedBulan.value || 'All'}_${selectedTahun.value || 'All'}.pdf`);
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Gagal membuat PDF export.');
+            } finally {
+                isExporting.value = false;
+            }
+        }
+    }, 100);
+};
 </script>
 
 <template>
@@ -164,6 +229,17 @@ const isFiltered = () => !!selectedBulan.value || !!selectedTahun.value;
                                     class="h-10 px-4 bg-stone-100 text-stone-500 rounded-xl text-sm font-bold hover:bg-stone-200 transition-colors">
                                 Reset
                             </button>
+
+                            <div class="flex items-center gap-2 border-l border-amber-100 pl-3 ml-1">
+                                <button @click="exportToImage" :disabled="isExporting" class="h-10 px-4 bg-amber-100 text-amber-700 rounded-xl text-sm font-bold hover:bg-amber-200 transition-colors flex items-center gap-2 shadow-sm shadow-amber-200/50">
+                                    <span v-if="isExporting" class="w-3.5 h-3.5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></span>
+                                    <ImageIcon v-else class="w-3.5 h-3.5" /> <span class="hidden md:inline">Image</span>
+                                </button>
+                                <button @click="exportToPdf" :disabled="isExporting" class="h-10 px-4 bg-rose-100 text-rose-700 rounded-xl text-sm font-bold hover:bg-rose-200 transition-colors flex items-center gap-2 shadow-sm shadow-rose-200/50">
+                                    <span v-if="isExporting" class="w-3.5 h-3.5 border-2 border-rose-600 border-t-transparent rounded-full animate-spin"></span>
+                                    <FileText v-else class="w-3.5 h-3.5" /> <span class="hidden md:inline">PDF</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -294,6 +370,97 @@ const isFiltered = () => !!selectedBulan.value || !!selectedTahun.value;
                         <span v-else>Simpan Transaksi</span>
                     </button>
                 </form>
+            </div>
+        </div>
+
+        <!-- Hidden DOM Element for Export -->
+        <div v-if="isExporting" class="fixed top-[-9999px] left-[-9999px] z-[-1]">
+            <div id="export-kas-container" class="bg-white p-12 w-[800px] border border-stone-200 font-sans">
+                <!-- Header -->
+                <div class="text-center mb-8 border-b-2 border-stone-100 pb-6">
+                    <h2 class="text-3xl font-black text-stone-900 tracking-tight">LAPORAN KAS PERUMAHAN SGV</h2>
+                    <p class="text-xl font-bold text-amber-600 mt-2" v-if="selectedBulan && selectedTahun">
+                        PERIODE {{ bulanNames[Number(selectedBulan)].toUpperCase() }} {{ selectedTahun }}
+                    </p>
+                    <p class="text-xl font-bold text-amber-600 mt-2" v-else-if="selectedTahun">
+                        TAHUN {{ selectedTahun }}
+                    </p>
+                    <p class="text-xl font-bold text-amber-600 mt-2" v-else>
+                        LAPORAN KESELURUHAN
+                    </p>
+                </div>
+                
+                <!-- Financial Summary -->
+                <div class="grid grid-cols-3 gap-6 mb-8 text-center">
+                    <div class="p-4 bg-stone-50 rounded-2xl">
+                        <p class="text-xs font-bold text-stone-400 uppercase tracking-widest">Total Pemasukkan</p>
+                        <p class="text-xl font-black text-green-600">{{ formatCurrency(totalMasuk) }}</p>
+                    </div>
+                    <div class="p-4 bg-stone-50 rounded-2xl">
+                        <p class="text-xs font-bold text-stone-400 uppercase tracking-widest">Total Pengeluaran</p>
+                        <p class="text-xl font-black text-red-600">{{ formatCurrency(totalKeluar) }}</p>
+                    </div>
+                    <div class="p-4 bg-amber-50 rounded-2xl">
+                        <p class="text-xs font-bold text-amber-600 uppercase tracking-widest">Saldo Kas</p>
+                        <p class="text-xl font-black text-stone-900">{{ formatCurrency(saldo) }}</p>
+                    </div>
+                </div>
+
+                <!-- Transaction Table -->
+                <div class="flex flex-col space-y-4">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-stone-50 border-y border-stone-200 text-stone-500 text-xs uppercase tracking-widest">
+                                <th class="py-3 px-4 font-black">Tanggal</th>
+                                <th class="py-3 px-4 font-black">Kategori</th>
+                                <th class="py-3 px-4 font-black">Keterangan</th>
+                                <th class="py-3 px-4 font-black text-right">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-100">
+                            <tr v-for="t in kas.data" :key="t.id">
+                                <td class="py-3 px-4 text-sm font-bold text-stone-600">{{ formatDate(t.tanggal) }}</td>
+                                <td class="py-3 px-4 text-xs font-bold text-stone-500 uppercase">{{ t.kategori }}</td>
+                                <td class="py-3 px-4 text-sm font-medium text-stone-600">{{ t.keterangan || '-' }}</td>
+                                <td class="py-3 px-4 text-sm font-black text-right" :class="t.type === 'masuk' ? 'text-green-600' : 'text-red-600'">
+                                    {{ t.type === 'masuk' ? '+' : '-' }} {{ formatCurrency(t.jumlah) }}
+                                </td>
+                            </tr>
+                            <tr v-if="kas.data.length === 0">
+                                <td colspan="4" class="py-10 text-center text-stone-400 font-bold">Tidak ada transaksi.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Lampiran Bukti Transaksi -->
+                <div v-if="kas.data.some(t => t.bukti)" class="mt-10">
+                    <h3 class="text-xl font-black text-stone-900 mb-6 border-b-2 border-stone-100 pb-2">Lampiran Bukti Transaksi</h3>
+                    <div class="grid grid-cols-2 gap-8">
+                        <template v-for="t in kas.data" :key="'bukti-' + t.id">
+                            <div v-if="t.bukti" class="bg-stone-50 p-4 rounded-2xl border border-stone-200 break-inside-avoid shadow-sm">
+                                <div class="w-full h-48 bg-white rounded-xl border border-stone-100 mb-4 overflow-hidden flex items-center justify-center p-2">
+                                    <img :src="'/storage/' + t.bukti" class="max-w-full max-h-full object-contain rounded-lg shadow-sm" />
+                                </div>
+                                <div class="text-center space-y-1">
+                                    <p class="text-sm font-bold text-stone-700 capitalize uppercase tracking-wide">
+                                        {{ t.type }} - {{ t.kategori }}
+                                    </p>
+                                    <p class="text-xs font-medium text-stone-500 px-2">
+                                        {{ t.keterangan || '-' }}
+                                    </p>
+                                    <p class="text-sm font-black pt-1" :class="t.type === 'masuk' ? 'text-green-600' : 'text-red-600'">
+                                        {{ formatCurrency(t.jumlah) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="mt-10 pt-6 border-t border-stone-100 text-stone-400 text-sm text-center font-medium">
+                    Diunduh dari Sistem Informasi Perumahan SGV pada {{ new Date().toLocaleString('id-ID') }}
+                </div>
             </div>
         </div>
     </HomeLayout>

@@ -13,6 +13,12 @@ class KasController extends Controller
     {
         $bulan = $request->input('bulan'); // 1-12 or null
         $tahun = $request->input('tahun'); // e.g. 2026 or null
+        $isAll = $request->has('all');
+
+        if (!$isAll && !$request->has('bulan') && !$request->has('tahun')) {
+            $bulan = date('m');
+            $tahun = date('Y');
+        }
 
         $query = Kas::query();
 
