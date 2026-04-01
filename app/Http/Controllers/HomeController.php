@@ -8,6 +8,7 @@ use App\Models\Warga;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Models\Kas;
 class HomeController extends Controller
 {
     public function index()
@@ -18,6 +19,7 @@ class HomeController extends Controller
                 'kegiatan' => Kegiatan::count(),
                 'kegiatan_mendatang' => Kegiatan::where('tanggal', '>', now())->orderBy('tanggal')->first(),
                 'galeri' => Galeri::orderBy('id', 'desc')->get(),
+                'total_kas' => Kas::sum('jumlah')
             ]
         ]);
     }

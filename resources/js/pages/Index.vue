@@ -1,11 +1,13 @@
 <script setup>
 import HomeLayout from '@/layouts/HomeLayout.vue';
+import { humanizeNumber } from '../lib/utils';
 import { ArrowRight, Heart, ShieldCheck, Gem, Users, Calendar, DollarSign, Image as ImageIcon } from 'lucide-vue-next';
 const prop = defineProps({props:Object});
 const kegiatan = prop.props.kegiatan;
 const kegiatanMendatang = prop.props.kegiatan_mendatang;
 const warga = prop.props.warga;
 const galeris = prop.props.galeri;
+const totalKas = prop.props.total_kas;
 const communityFeatures = [
     {
         title: 'Kegiatan Warga',
@@ -55,8 +57,8 @@ const communityFeatures = [
                         </p>
                         
                         <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                            <a href="#kegiatan" class="flex items-center justify-center space-x-2 bg-amber-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-amber-200 hover:bg-amber-700 hover:-translate-y-1 transition-all active:scale-95 group">
-                                <span>Informasi Warga</span>
+                            <a href="/iuran" class="flex items-center justify-center space-x-2 bg-amber-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-amber-200 hover:bg-amber-700 hover:-translate-y-1 transition-all active:scale-95 group">
+                                <span>Iuran Warga</span>
                                 <ArrowRight class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </a>
                             <a href="/kas" class="flex items-center justify-center space-x-2 bg-white text-stone-700 border-2 border-amber-100 px-8 py-4 rounded-2xl font-bold text-lg hover:border-amber-400 hover:bg-amber-50/30 transition-all active:scale-95">
@@ -73,6 +75,10 @@ const communityFeatures = [
                             <div>
                                 <p class="text-3xl font-black text-stone-900">{{ kegiatan }}</p>
                                 <p class="text-sm text-stone-500 font-medium tracking-tight">Kegiatan</p>
+                            </div>
+                            <div>
+                                <p class="text-3xl font-black text-stone-900">{{ humanizeNumber(totalKas) }}</p>
+                                <p class="text-sm text-stone-500 font-medium tracking-tight">Total Kas</p>
                             </div>
                             
                         </div>
@@ -143,7 +149,7 @@ const communityFeatures = [
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                     <div class="max-w-2xl space-y-4">
                         <h2 class="text-xs font-bold text-amber-600 uppercase tracking-[0.3em]">Program & Layanan</h2>
-                        <p class="text-4xl md:text-5xl font-black text-stone-900 tracking-tight">Kehidupan Bertangga yang <span class="text-amber-500">Berdaya</span>.</p>
+                        <p class="text-4xl md:text-5xl font-black text-stone-900 tracking-tight">Kehidupan Bertetangga yang <span class="text-amber-500">Berdaya</span>.</p>
                     </div>
                     <div class="hidden md:block">
                         <a href="/jadwal" class="text-sm font-bold text-stone-400 hover:text-amber-600 flex items-center space-x-2 transition-colors">
