@@ -238,12 +238,12 @@ const exportToImage = async () => {
                                                     ? 'bg-amber-600 text-white shadow-lg shadow-amber-200' 
                                                     : 'bg-stone-100 text-stone-300 hover:bg-stone-200'">
                                             <Check v-if="isPaid(w.id, month.id)" class="w-6 h-6 stroke-[3]" />
-                                            <X v-else class="w-4 h-4 opacity-30" />
+                                            <X v-else class="w-4 h-4 opacity-30 text-red-600" />
                                         </button>
                                         <div v-else class="w-10 h-10 rounded-xl flex items-center justify-center mx-auto"
-                                             :class="isPaid(w.id, month.id) ? 'text-amber-600 bg-amber-100' : 'text-stone-200'">
+                                             :class="isPaid(w.id, month.id) ? 'text-amber-600 bg-amber-100' : 'text-red-600'">
                                             <Check v-if="isPaid(w.id, month.id)" class="w-6 h-6 stroke-[3]" />
-                                            <X v-else class="w-4 h-4 opacity-30" />
+                                            <X v-else class="w-4 h-4 opacity-30 text-red-600" />
                                         </div>
                                     </td>
                                 </tr>
