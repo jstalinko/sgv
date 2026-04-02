@@ -2,7 +2,7 @@
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { ref, computed } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
-import { Check, X, ChevronLeft, ChevronRight, Search, CreditCard, User, Home, FileText, Image as ImageIcon } from 'lucide-vue-next';
+import { Check, X, ChevronLeft, ChevronRight, ChevronDown, Search, CreditCard, User, Home, FileText, Image as ImageIcon } from 'lucide-vue-next';
 import html2canvas from 'html2canvas';
 
 const props = defineProps<{
@@ -34,6 +34,8 @@ const months = [
     { id: 11, name: 'November' },
     { id: 12, name: 'Desember' },
 ];
+
+const activeMobileMonth = ref(currentMonth);
 
 const searchQuery = ref('');
 const filteredWarga = computed(() => {
@@ -166,20 +168,30 @@ const exportToImage = async () => {
                 </div>
 
                 <!-- Table Controls -->
-                <div class="bg-white rounded-t-[2.5rem] border-x border-t border-amber-100 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="relative w-full md:w-96">
-                        <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
-                        <input v-model="searchQuery" 
-                               type="text" 
-                               placeholder="Cari Nama atau No. Rumah..." 
-                               class="w-full pl-12 pr-4 py-3 bg-stone-50 border-none rounded-2xl focus:ring-2 focus:ring-amber-500 font-medium text-stone-700" />
+                <div class="bg-white rounded-t-[2.5rem] border-x border-t border-amber-100 p-4 md:p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex flex-col md:flex-row w-full md:w-auto gap-4">
+                        <div class="relative w-full md:w-80">
+                            <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                            <input v-model="searchQuery" 
+                                   type="text" 
+                                   placeholder="Cari Nama atau No. Rumah..." 
+                                   class="w-full pl-12 pr-4 py-3 bg-stone-50 border-none rounded-2xl focus:ring-2 focus:ring-amber-500 font-medium text-stone-700" />
+                        </div>
+                        
+                        <!-- Mobile Month Selector -->
+                        <div class="md:hidden w-full relative">
+                            <select v-model="activeMobileMonth" class="w-full pl-4 pr-10 py-3 bg-amber-50 border-none rounded-2xl focus:ring-2 focus:ring-amber-500 font-bold text-amber-700 appearance-none">
+                                <option v-for="m in months" :key="m.id" :value="m.id">Bulan: {{ m.name }}</option>
+                            </select>
+                            <ChevronDown class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-600 pointer-events-none" />
+                        </div>
                     </div>
                     
                     <div class="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
-                        <button @click="exportToText" class="whitespace-nowrap px-5 py-3 bg-stone-100 text-stone-600 font-bold rounded-2xl hover:bg-stone-200 transition-colors flex items-center gap-2">
+                        <button @click="exportToText" class="whitespace-nowrap px-4 md:px-5 py-3 bg-stone-100 text-stone-600 font-bold rounded-2xl hover:bg-stone-200 transition-colors flex items-center gap-2 text-sm md:text-base">
                             <FileText class="w-5 h-5 text-stone-500" /> Salin Teks
                         </button>
-                        <button @click="exportToImage" :disabled="isExporting" class="whitespace-nowrap px-5 py-3 bg-amber-100 text-amber-700 font-bold rounded-2xl hover:bg-amber-200 transition-colors flex items-center gap-2 shadow-sm shadow-amber-200/50">
+                        <button @click="exportToImage" :disabled="isExporting" class="whitespace-nowrap px-4 md:px-5 py-3 bg-amber-100 text-amber-700 font-bold rounded-2xl hover:bg-amber-200 transition-colors flex items-center gap-2 shadow-sm shadow-amber-200/50 text-sm md:text-base">
                             <span v-if="isExporting" class="w-5 h-5 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></span>
                             <ImageIcon v-else class="w-5 h-5 text-amber-600" /> Export Gambar
                         </button>
@@ -192,11 +204,14 @@ const exportToImage = async () => {
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-stone-50 border-y border-amber-100">
-                                    <th class="p-6 text-xs font-black text-stone-500 uppercase tracking-widest sticky left-0 bg-stone-50 z-10 border-r border-amber-50">Rumah</th>
-                                    <th class="p-6 text-xs font-black text-stone-500 uppercase tracking-widest sticky left-[150px] bg-stone-50 z-10 border-r border-amber-100">Nama</th>
+                                    <th class="p-4 md:p-6 text-[10px] md:text-xs font-black text-stone-500 uppercase tracking-widest sticky left-0 bg-stone-50 z-10 border-r border-amber-50">Rumah</th>
+                                    <th class="p-4 md:p-6 text-[10px] md:text-xs font-black text-stone-500 uppercase tracking-widest sticky left-[80px] md:left-[150px] bg-stone-50 z-10 border-r border-amber-100">Nama</th>
                                     <th v-for="month in months" :key="month.id" 
-                                        class="p-4 text-xs font-black uppercase tracking-widest text-center min-w-[100px]"
-                                        :class="isCurrentMonth(month.id) ? 'text-amber-600 bg-amber-50/50' : 'text-stone-500'">
+                                        class="p-4 text-xs font-black uppercase tracking-widest text-center min-w-[80px] md:min-w-[100px]"
+                                        :class="[
+                                            isCurrentMonth(month.id) ? 'text-amber-600 bg-amber-50/50' : 'text-stone-500',
+                                            month.id !== activeMobileMonth ? 'hidden md:table-cell' : ''
+                                        ]">
                                         {{ month.name.substring(0, 3) }}
                                         <div v-if="isCurrentMonth(month.id)" class="text-[8px] mt-1 text-amber-500">INI BULAN INI</div>
                                     </th>
@@ -204,15 +219,18 @@ const exportToImage = async () => {
                             </thead>
                             <tbody class="divide-y divide-amber-50">
                                 <tr v-for="w in filteredWarga" :key="w.id" class="hover:bg-amber-50/30 transition-colors group">
-                                    <td class="p-6 text-sm font-black text-amber-700 sticky left-0 bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-50">
-                                        {{w.blok}} / {{ w.no_rumah }}
+                                    <td class="p-4 md:p-6 text-xs md:text-sm font-black text-amber-700 sticky left-0 bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-50">
+                                        <div class="whitespace-nowrap">{{w.blok}} / {{ w.no_rumah }}</div>
                                     </td>
-                                    <td class="p-6 text-sm font-bold text-stone-700 sticky left-[150px] bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-100 uppercase">
-                                        {{ w.nama }}
+                                    <td class="p-4 md:p-6 text-xs md:text-sm font-bold text-stone-700 sticky left-[80px] md:left-[150px] bg-white group-hover:bg-amber-50 transition-colors z-10 border-r border-amber-100 uppercase">
+                                        <div class="whitespace-nowrap">{{ w.nama }}</div>
                                     </td>
                                     <td v-for="month in months" :key="month.id" 
                                         class="p-4 text-center"
-                                        :class="{ 'bg-amber-400': isCurrentMonth(month.id) }">
+                                        :class="[
+                                            isCurrentMonth(month.id) ? 'bg-amber-400' : '',
+                                            month.id !== activeMobileMonth ? 'hidden md:table-cell' : ''
+                                        ]">
                                         <button v-if="can_edit"
                                                 @click="togglePayment(w.id, month.id)" 
                                                 class="w-10 h-10 rounded-xl flex items-center justify-center mx-auto transition-all active:scale-90"
