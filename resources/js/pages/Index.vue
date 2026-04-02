@@ -2,12 +2,15 @@
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { humanizeNumber } from '../lib/utils';
 import { ArrowRight, Heart, ShieldCheck, Gem, Users, Calendar, DollarSign, Image as ImageIcon } from 'lucide-vue-next';
+import { usePage } from '@inertiajs/vue3';
 const prop = defineProps({props:Object});
 const kegiatan = prop.props.kegiatan;
 const kegiatanMendatang = prop.props.kegiatan_mendatang;
 const warga = prop.props.warga;
 const galeris = prop.props.galeri;
 const totalKas = prop.props.total_kas;
+
+const websetting = usePage().props.websetting;
 const communityFeatures = [
     {
         title: 'Kegiatan Warga',
@@ -45,7 +48,7 @@ const communityFeatures = [
                     <div class="space-y-8 max-w-2xl">
                         <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-100/50 border border-amber-200 text-amber-700 text-[10px] font-bold uppercase tracking-[0.2em]">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            <span>Portal Resmi Warga SGV</span>
+                            <span>Portal Resmi Warga {{ websetting.website_name }}</span>
                         </div>
                         
                         <h1 class="text-5xl md:text-7xl font-black text-stone-900 leading-[1.1] tracking-tight">
@@ -53,7 +56,7 @@ const communityFeatures = [
                         </h1>
                         
                         <p class="text-lg md:text-xl text-stone-600 leading-relaxed max-w-xl">
-                            Selamat datang di portal informasi Perumahan Suryo Green Village. Tempat di mana kenyamanan bertemu dengan kehangatan bertangga.
+                            Selamat datang di portal informasi Perumahan {{ websetting.website_name }}. Tempat di mana kenyamanan bertemu dengan kehangatan bertangga.
                         </p>
                         
                         <div class="flex flex-col sm:flex-row gap-4 pt-4">

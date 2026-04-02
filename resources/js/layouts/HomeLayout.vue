@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import Navbar from '@/components/Navbar.vue';
 import Footer from '@/components/Footer.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 
 defineProps<{
     title?: string;
 }>();
+
+const websetting = usePage().props.websetting;
 </script>
 
 <template>
     <div class="min-h-screen bg-[#FCFAF2] font-sans text-stone-900 selection:bg-amber-100 selection:text-amber-900">
-        <Head :title="title ? `${title} - Komunitas Suryo Green Village` : 'Suryo Green Village - Portal Warga'" />
+        <Head :title="title ? `${title} - ${websetting?.website_name}` : `${websetting?.website_name} - Portal Warga`" />
         
         <!-- Navigation -->
         <Navbar />

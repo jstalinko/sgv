@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\WebSettingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -24,10 +25,22 @@ Route::prefix('kas')->name('kas.')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        return Inertia::render('Dashboard');
+        $totalWarga = \App\Models\Warga::count();
+        $allMasuk = \App\Models\Kas::where('type', 'masuk')->sum('jumlah');
+        $allKeluar = \App\Models\Kas::where('type', 'keluar')->sum('jumlah');
+        $saldo = $allMasuk - $allKeluar;
+
+        return Inertia::render('Dashboard', [
+            'totalWarga' => $totalWarga,
+            'totalPemasukan' => $allMasuk,
+            'totalPengeluaran' => $allKeluar,
+            'totalKas' => $saldo,
+        ]);
     })->name('dashboard');
 
     Route::resource('/dashboard/warga', WargaController::class);
+    Route::get('/dashboard/web-setting',[WebSettingController::class,'index'])->name('dashboard.web-setting');
+    Route::post('/dashboard/web-setting',[WebSettingController::class,'update'])->name('dashboard.web-setting.update');
 
     Route::prefix('dashboard/iuran')->name('dashboard.iuran.')->group(function () {
         Route::get('/', [IuranController::class, 'dashboardIndex'])->name('index');

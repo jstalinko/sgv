@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'websetting' => json_decode(file_get_contents(storage_path('app/private/private/web-setting.json')) , true)
         ]);
     }
 }

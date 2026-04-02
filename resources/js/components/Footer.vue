@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link ,usePage} from '@inertiajs/vue3';
 import { Facebook, Instagram, Mail, MapPin, Phone, Users } from 'lucide-vue-next';
 
 const currentYear = new Date().getFullYear();
@@ -14,6 +14,7 @@ const footerLinks = [
         ],
     }
 ];
+const websetting = usePage().props.websetting;
 </script>
 
 <template>
@@ -24,20 +25,18 @@ const footerLinks = [
                 <div class="space-y-6">
                     <div>
                         <Link href="/" class="flex flex-col">
-                            <span class="text-2xl font-black text-amber-500 tracking-tight uppercase leading-none">Suryo Green Village</span>
+                            <span class="text-2xl font-black text-amber-500 tracking-tight uppercase leading-none">{{ websetting.website_name }}</span>
                             <span class="text-[10px] text-amber-200/50 font-bold tracking-[0.2em] uppercase mt-1">Portal Komunitas Warga</span>
                         </Link>
                     </div>
                     <p class="text-sm leading-relaxed text-stone-400">
-                        Media informasi dan komunikasi resmi warga Perumahan Suryo Green Village. Mewujudkan lingkungan yang harmonis, aman, dan saling peduli.
+                        {{ websetting.short_description }}
                     </p>
                     <div class="flex space-x-4">
-                        <a href="#" class="p-2 bg-stone-800 rounded-xl hover:bg-amber-600 hover:text-white transition-all">
+                        <a :href="`https://instagram.com/${websetting.instagram}`" class="p-2 bg-stone-800 rounded-xl hover:bg-amber-600 hover:text-white transition-all">
                             <Instagram class="w-5 h-5" />
                         </a>
-                        <a href="#" class="p-2 bg-stone-800 rounded-xl hover:bg-amber-600 hover:text-white transition-all">
-                            <Users class="w-5 h-5" />
-                        </a>
+                      
                     </div>
                 </div>
 
@@ -59,15 +58,17 @@ const footerLinks = [
                     <ul class="space-y-4">
                         <li class="flex items-start space-x-3 text-sm">
                             <MapPin class="w-5 h-5 shrink-0 text-amber-500 mt-0.5" />
-                            <span>Jl. Raya Pecangaan - Damaran , RT 03 Desa Pulodarat Kec. Pecangaan, Kab. Jepara 59462</span>
+                            <span>
+                                {{ websetting.alamat }}
+                            </span>
                         </li>
                         <li class="flex items-center space-x-3 text-sm">
                             <Phone class="w-5 h-5 text-amber-500" />
-                            <span>Emergency: +62 812-3333-4444</span>
+                            <span>Contact: {{ websetting.phone }}</span>
                         </li>
                         <li class="flex items-center space-x-3 text-sm">
                             <Mail class="w-5 h-5 text-amber-500" />
-                            <span>warga@suryogreenvillage.id</span>
+                            <span>{{ websetting.email }}</span>
                         </li>
                     </ul>
                 </div>
@@ -76,7 +77,7 @@ const footerLinks = [
             <!-- Copyright -->
             <div class="pt-10 border-t border-stone-800 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-xs text-stone-500">
-                    &copy; {{ currentYear }} SURYO GREEN VILLAGE. 
+                    &copy; {{ currentYear }} {{ websetting.website_name }} 
                 </p>
                 <div class="flex space-x-6 text-xs text-stone-500 font-medium">
                   <p>PROVIDED BY:</p>

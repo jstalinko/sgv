@@ -11,7 +11,7 @@ const props = defineProps<{
     amount: number;
     can_edit: boolean;
 }>();
-
+const websetting = usePage().props.websetting;
 const currentMonth = new Date().getMonth() + 1;
 const currentYear = new Date().getFullYear();
 
@@ -139,7 +139,7 @@ const exportToImage = async () => {
                 <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div class="space-y-2">
                         <h1 class="text-4xl font-black text-stone-900 tracking-tight">Iuran Bulanan <span class="text-amber-600">Warga</span></h1>
-                        <p class="text-stone-500 font-medium">Monitoring pembayaran iuran rutin perumahan Suryo Green Village.</p>
+                        <p class="text-stone-500 font-medium">Monitoring pembayaran iuran rutin perumahan {{ websetting.website_name }}.</p>
                     </div>
                     
                     <div class="flex items-center bg-white p-2 rounded-2xl shadow-sm border border-amber-100">
@@ -279,7 +279,7 @@ const exportToImage = async () => {
             <div id="export-image-container" class="bg-white p-12 w-[600px] border border-stone-200 font-sans">
                 <!-- Watermark Logo SGV (Optional context) -->
                 <div class="text-center mb-8 border-b-2 border-stone-100 pb-6">
-                    <h2 class="text-3xl font-black text-stone-900 tracking-tight">IURAN PERUMAHAN SGV</h2>
+                    <h2 class="text-3xl font-black text-stone-900 tracking-tight">IURAN PERUMAHAN {{ websetting.website_name }}</h2>
                     <p class="text-xl font-bold text-amber-600 mt-2">
                         BULAN {{ months.find(m => m.id === currentMonth)?.name.toUpperCase() }} {{ currentYear }}
                     </p>
@@ -301,7 +301,7 @@ const exportToImage = async () => {
 Paling lambat tgl 12 nggih Bpk Ibu 🙏
                 </p>
                 <div class="mt-10 pt-6 border-t font-medium border-stone-100 text-stone-400 text-sm text-center">
-                    Diunduh dari Sistem Informasi Perumahan SGV
+                    Diunduh dari Sistem Informasi Perumahan {{ websetting.website_name }}
                 </div>
             </div>
         </div>

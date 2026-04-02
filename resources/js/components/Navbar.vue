@@ -6,7 +6,7 @@ import type { SharedData } from '@/types';
 
 const isMenuOpen = ref(false);
 const page = usePage<SharedData>();
-
+const websetting = page.props.websetting;
 const navigation = [
     { name: 'Kegiatan', href: '/jadwal', icon: Calendar },
     { name: 'Iuran', href: route('iuran.index'), icon: CreditCard },
@@ -23,7 +23,7 @@ const navigation = [
                 <!-- Logo -->
                 <div class="flex items-center">
                     <Link href="/" class="flex flex-col">
-                        <span class="text-xl font-extrabold text-amber-800 tracking-tight leading-none uppercase">Suryo Green Village</span>
+                        <span class="text-xl font-extrabold text-amber-800 tracking-tight leading-none uppercase">{{ websetting.website_name }}</span>
                         <span class="text-[9px] text-amber-600/80 font-bold tracking-[0.2em] uppercase mt-1">Portal Komunitas Warga</span>
                     </Link>
                 </div>
