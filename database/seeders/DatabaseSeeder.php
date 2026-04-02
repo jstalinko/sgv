@@ -17,10 +17,10 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'Warga Admin',
-            'email' => 'admin@sgv.com',
+            'email' => 'admin@admin.com',
             'password' => bcrypt('password'),
         ]);
 
-        $this->call(WargaSeeder::class);
+       // $this->call(WargaSeeder::class);
     }
 }
