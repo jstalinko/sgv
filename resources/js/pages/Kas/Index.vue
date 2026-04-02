@@ -122,17 +122,36 @@ const exportToPdf = async () => {
                 const canvas = await html2canvas(el, { 
                     backgroundColor: '#ffffff', 
                     scale: 2,
-                    logging: false
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true,
+                    width: el.scrollWidth,
+                    height: el.scrollHeight,
                 });
                 
                 const imgData = canvas.toDataURL('image/png');
+                // A4 dimensions in mm
                 const pdf = new jsPDF({
                     orientation: 'portrait',
-                    unit: 'px',
-                    format: [canvas.width / 2, canvas.height / 2]
+                    unit: 'mm',
+                    format: 'a4',
                 });
-                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
-                pdf.save(`Kas_SGV_${selectedBulan.value || 'All'}_${selectedTahun.value || 'All'}.pdf`);
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 10;
+                const contentWidth = pageWidth - margin * 2;
+                const contentHeight = (canvas.height / canvas.width) * contentWidth;
+                
+                if (contentHeight <= pageHeight - margin * 2) {
+                    pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
+                } else {
+                    // Scale to fit page height if needed
+                    const scale = Math.min(contentWidth / (canvas.width / 2), (pageHeight - margin * 2) / (canvas.height / 2));
+                    const w = (canvas.width / 2) * scale;
+                    const h = (canvas.height / 2) * scale;
+                    pdf.addImage(imgData, 'PNG', margin, margin, w, h);
+                }
+                pdf.save(`Kas_${selectedBulan.value || 'All'}_${selectedTahun.value || 'All'}.pdf`);
             } catch (error) {
                 console.error('Error generating PDF:', error);
                 alert('Gagal membuat PDF export.');
@@ -377,81 +396,79 @@ const exportToPdf = async () => {
 
         <!-- Hidden DOM Element for Export -->
         <div v-if="isExporting" class="fixed top-[-9999px] left-[-9999px] z-[-1]">
-            <div id="export-kas-container" class="bg-white p-12 w-[800px] border border-stone-200 font-sans">
+            <div id="export-kas-container" style="width: 1050px; padding: 48px; background: #ffffff; font-family: system-ui, -apple-system, sans-serif; box-sizing: border-box;">
                 <!-- Header -->
-                <div class="text-center mb-8 border-b-2 border-stone-100 pb-6">
-                    <h2 class="text-3xl font-black text-stone-900 tracking-tight">LAPORAN KAS PERUMAHAN {{ websetting.website_name }}</h2>
-                    <p class="text-xl font-bold text-amber-600 mt-2" v-if="selectedBulan && selectedTahun">
+                <div style="text-align: center; margin-bottom: 32px; border-bottom: 2px solid #f5f5f4; padding-bottom: 24px;">
+                    <h2 style="font-size: 24px; font-weight: 900; color: #1c1917; letter-spacing: -0.5px; margin: 0;">LAPORAN KAS PERUMAHAN {{ websetting.website_name }}</h2>
+                    <p style="font-size: 18px; font-weight: 700; color: #d97706; margin-top: 8px;" v-if="selectedBulan && selectedTahun">
                         PERIODE {{ bulanNames[Number(selectedBulan)].toUpperCase() }} {{ selectedTahun }}
                     </p>
-                    <p class="text-xl font-bold text-amber-600 mt-2" v-else-if="selectedTahun">
+                    <p style="font-size: 18px; font-weight: 700; color: #d97706; margin-top: 8px;" v-else-if="selectedTahun">
                         TAHUN {{ selectedTahun }}
                     </p>
-                    <p class="text-xl font-bold text-amber-600 mt-2" v-else>
+                    <p style="font-size: 18px; font-weight: 700; color: #d97706; margin-top: 8px;" v-else>
                         LAPORAN KESELURUHAN
                     </p>
                 </div>
                 
                 <!-- Financial Summary -->
-                <div class="grid grid-cols-3 gap-6 mb-8 text-center">
-                    <div class="p-4 bg-stone-50 rounded-2xl">
-                        <p class="text-xs font-bold text-stone-400 uppercase tracking-widest">Total Pemasukkan</p>
-                        <p class="text-xl font-black text-green-600">{{ formatCurrency(totalMasuk) }}</p>
+                <div style="display: flex; gap: 16px; margin-bottom: 32px;">
+                    <div style="flex: 1; padding: 16px; background: #fafaf9; border-radius: 12px; text-align: center;">
+                        <p style="font-size: 10px; font-weight: 700; color: #a8a29e; text-transform: uppercase; letter-spacing: 1.5px; margin: 0;">Total Pemasukkan</p>
+                        <p style="font-size: 18px; font-weight: 900; color: #16a34a; margin: 8px 0 0;">{{ formatCurrency(totalMasuk) }}</p>
                     </div>
-                    <div class="p-4 bg-stone-50 rounded-2xl">
-                        <p class="text-xs font-bold text-stone-400 uppercase tracking-widest">Total Pengeluaran</p>
-                        <p class="text-xl font-black text-red-600">{{ formatCurrency(totalKeluar) }}</p>
+                    <div style="flex: 1; padding: 16px; background: #fafaf9; border-radius: 12px; text-align: center;">
+                        <p style="font-size: 10px; font-weight: 700; color: #a8a29e; text-transform: uppercase; letter-spacing: 1.5px; margin: 0;">Total Pengeluaran</p>
+                        <p style="font-size: 18px; font-weight: 900; color: #dc2626; margin: 8px 0 0;">{{ formatCurrency(totalKeluar) }}</p>
                     </div>
-                    <div class="p-4 bg-amber-50 rounded-2xl">
-                        <p class="text-xs font-bold text-amber-600 uppercase tracking-widest">Saldo Kas</p>
-                        <p class="text-xl font-black text-stone-900">{{ formatCurrency(saldo) }}</p>
+                    <div style="flex: 1; padding: 16px; background: #fffbeb; border-radius: 12px; text-align: center;">
+                        <p style="font-size: 10px; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 1.5px; margin: 0;">Saldo Kas</p>
+                        <p style="font-size: 18px; font-weight: 900; color: #1c1917; margin: 8px 0 0;">{{ formatCurrency(saldo) }}</p>
                     </div>
                 </div>
 
                 <!-- Transaction Table -->
-                <div class="flex flex-col space-y-4">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-stone-50 border-y border-stone-200 text-stone-500 text-xs uppercase tracking-widest">
-                                <th class="py-3 px-4 font-black">Tanggal</th>
-                                <th class="py-3 px-4 font-black">Kategori</th>
-                                <th class="py-3 px-4 font-black">Keterangan</th>
-                                <th class="py-3 px-4 font-black text-right">Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-stone-100">
-                            <tr v-for="t in kas.data" :key="t.id">
-                                <td class="py-3 px-4 text-sm font-bold text-stone-600">{{ formatDate(t.tanggal) }}</td>
-                                <td class="py-3 px-4 text-xs font-bold text-stone-500 uppercase">{{ t.kategori }}</td>
-                                <td class="py-3 px-4 text-sm font-medium text-stone-600">{{ t.keterangan || '-' }}</td>
-                                <td class="py-3 px-4 text-sm font-black text-right" :class="t.type === 'masuk' ? 'text-green-600' : 'text-red-600'">
-                                    {{ t.type === 'masuk' ? '+' : '-' }} {{ formatCurrency(t.jumlah) }}
-                                </td>
-                            </tr>
-                            <tr v-if="kas.data.length === 0">
-                                <td colspan="4" class="py-10 text-center text-stone-400 font-bold">Tidak ada transaksi.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                    <thead>
+                        <tr style="background: #fafaf9; border-top: 1px solid #e7e5e4; border-bottom: 1px solid #e7e5e4;">
+                            <th style="width: 18%; padding: 10px 12px; font-size: 10px; font-weight: 900; color: #a8a29e; text-transform: uppercase; letter-spacing: 1.5px; text-align: left;">Tanggal</th>
+                            <th style="width: 17%; padding: 10px 12px; font-size: 10px; font-weight: 900; color: #a8a29e; text-transform: uppercase; letter-spacing: 1.5px; text-align: left;">Kategori</th>
+                            <th style="width: 40%; padding: 10px 12px; font-size: 10px; font-weight: 900; color: #a8a29e; text-transform: uppercase; letter-spacing: 1.5px; text-align: left;">Keterangan</th>
+                            <th style="width: 25%; padding: 10px 12px; font-size: 10px; font-weight: 900; color: #a8a29e; text-transform: uppercase; letter-spacing: 1.5px; text-align: right;">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="t in kas.data" :key="'exp-' + t.id" style="border-bottom: 1px solid #f5f5f4;">
+                            <td style="padding: 10px 12px; font-size: 13px; font-weight: 700; color: #57534e;">{{ formatDate(t.tanggal) }}</td>
+                            <td style="padding: 10px 12px; font-size: 11px; font-weight: 700; color: #78716c; text-transform: uppercase;">{{ t.kategori }}</td>
+                            <td style="padding: 10px 12px; font-size: 13px; font-weight: 500; color: #57534e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ t.keterangan || '-' }}</td>
+                            <td style="padding: 10px 12px; font-size: 13px; font-weight: 900; text-align: right;" :style="{ color: t.type === 'masuk' ? '#16a34a' : '#dc2626' }">
+                                {{ t.type === 'masuk' ? '+' : '-' }} {{ formatCurrency(t.jumlah) }}
+                            </td>
+                        </tr>
+                        <tr v-if="kas.data.length === 0">
+                            <td colspan="4" style="padding: 40px; text-align: center; color: #a8a29e; font-weight: 700;">Tidak ada transaksi.</td>
+                        </tr>
+                    </tbody>
+                </table>
 
                 <!-- Lampiran Bukti Transaksi -->
-                <div v-if="kas.data.some(t => t.bukti)" class="mt-10">
-                    <h3 class="text-xl font-black text-stone-900 mb-6 border-b-2 border-stone-100 pb-2">Lampiran Bukti Transaksi</h3>
-                    <div class="grid grid-cols-2 gap-8">
+                <div v-if="kas.data.some(t => t.bukti)" style="margin-top: 40px;">
+                    <h3 style="font-size: 18px; font-weight: 900; color: #1c1917; margin-bottom: 24px; border-bottom: 2px solid #f5f5f4; padding-bottom: 8px;">Lampiran Bukti Transaksi</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                         <template v-for="t in kas.data" :key="'bukti-' + t.id">
-                            <div v-if="t.bukti" class="bg-stone-50 p-4 rounded-2xl border border-stone-200 break-inside-avoid shadow-sm">
-                                <div class="w-full h-48 bg-white rounded-xl border border-stone-100 mb-4 overflow-hidden flex items-center justify-center p-2">
-                                    <img :src="'/storage/' + t.bukti" class="max-w-full max-h-full object-contain rounded-lg shadow-sm" />
+                            <div v-if="t.bukti" style="background: #fafaf9; padding: 16px; border-radius: 12px; border: 1px solid #e7e5e4;">
+                                <div style="width: 100%; height: 180px; background: #ffffff; border-radius: 8px; border: 1px solid #f5f5f4; margin-bottom: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 8px;">
+                                    <img :src="'/storage/' + t.bukti" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px;" />
                                 </div>
-                                <div class="text-center space-y-1">
-                                    <p class="text-sm font-bold text-stone-700 capitalize uppercase tracking-wide">
+                                <div style="text-align: center;">
+                                    <p style="font-size: 12px; font-weight: 700; color: #44403c; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
                                         {{ t.type }} - {{ t.kategori }}
                                     </p>
-                                    <p class="text-xs font-medium text-stone-500 px-2">
+                                    <p style="font-size: 11px; font-weight: 500; color: #78716c; padding: 0 8px; margin: 4px 0;">
                                         {{ t.keterangan || '-' }}
                                     </p>
-                                    <p class="text-sm font-black pt-1" :class="t.type === 'masuk' ? 'text-green-600' : 'text-red-600'">
+                                    <p style="font-size: 13px; font-weight: 900; margin: 4px 0 0;" :style="{ color: t.type === 'masuk' ? '#16a34a' : '#dc2626' }">
                                         {{ formatCurrency(t.jumlah) }}
                                     </p>
                                 </div>
@@ -460,7 +477,7 @@ const exportToPdf = async () => {
                     </div>
                 </div>
 
-                <div class="mt-10 pt-6 border-t border-stone-100 text-stone-400 text-sm text-center font-medium">
+                <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #f5f5f4; color: #a8a29e; font-size: 12px; text-align: center; font-weight: 500;">
                     Diunduh dari Sistem Informasi Perumahan {{ websetting.website_name }} pada {{ new Date().toLocaleString('id-ID') }}
                 </div>
             </div>
