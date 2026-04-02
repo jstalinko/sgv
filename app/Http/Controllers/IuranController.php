@@ -33,11 +33,11 @@ class IuranController extends Controller
         $warga = Warga::with(['iurans' => function($query) use ($tahun) {
             $query->where('tahun', $tahun);
         }])->orderBy('no_rumah')->get();
-
+        $websetting = json_decode(file_get_contents(storage_path('app/private/private/web-setting.json')) , true);
         return Inertia::render('Dashboard/Iuran/Index', [
             'warga' => $warga,
             'tahun' => (int) $tahun,
-            'amount' => config('sgv.resident_fee'),
+            'amount' =>(int) $websetting['iuran_bulanan'] ,
         ]);
     }
 

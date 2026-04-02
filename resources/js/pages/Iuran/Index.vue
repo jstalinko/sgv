@@ -11,7 +11,7 @@ const props = defineProps<{
     amount: number;
     can_edit: boolean;
 }>();
-const websetting = usePage().props.websetting;
+const websetting = usePage().props.websetting as any;
 const currentMonth = new Date().getMonth() + 1;
 const currentYear = new Date().getFullYear();
 
@@ -97,6 +97,7 @@ const exportToText = async () => {
 };
 
 const isExporting = ref(false);
+const showQrisModal = ref(false);
 
 const exportToImage = async () => {
     isExporting.value = true;
@@ -154,7 +155,7 @@ const exportToImage = async () => {
                 </div>
 
                 <!-- Stats Summary -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-amber-50 flex items-center space-x-4">
                         <div class="p-3 bg-amber-100 rounded-2xl text-amber-600">
                             <CreditCard class="w-6 h-6" />
@@ -165,6 +166,28 @@ const exportToImage = async () => {
                         </div>
                     </div>
                     <!-- Add more stats if needed -->
+                </div>
+
+                <!-- Alert Iuran -->
+                <div v-if="websetting?.rekening_type" class="mb-10 bg-amber-50 border border-amber-200 p-4 md:p-6 rounded-[2rem] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="p-2 bg-amber-100 rounded-full text-amber-600 mt-1 md:mt-0 shadow-sm shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-amber-800 tracking-tight">Info Pembayaran Iuran</h3>
+                            <p class="text-amber-700 mt-1">
+                                Iuran bisa dibayarkan melalui <b class="uppercase">{{ websetting.rekening_type }}</b>.
+                                <template v-if="websetting.rekening_type === 'Transfer' && websetting.rekening_tujuan">
+                                    <br class="hidden md:block"/>
+                                    Silahkan transfer ke rekening tujuan: <span class="font-bold">{{ websetting.rekening_tujuan }}</span>
+                                </template>
+                            </p>
+                        </div>
+                    </div>
+                    <div v-if="websetting.rekening_type === 'QRIS' && websetting.qris_image_path" class="shrink-0 w-full md:w-auto">
+                        <button @click="showQrisModal = true" class="w-full md:w-auto px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-all shadow-md shadow-amber-200 whitespace-nowrap active:scale-95">Tampilkan QRIS</button>
+                    </div>
                 </div>
 
                 <!-- Table Controls -->
@@ -294,14 +317,35 @@ const exportToImage = async () => {
                     </div>
                 </div>
                 <br>
-                <p>
-                    Iuran bisa di bayarkan melalui transfer ke rekening
-                    <b>BNI - 1802199289 an Febi Gardian Setiawan.
-</b>
-Paling lambat tgl 12 nggih Bpk Ibu 🙏
-                </p>
+                <div class="text-lg">
+                    <p v-if="websetting?.rekening_type === 'Transfer'">
+                        Iuran bisa dibayarkan melalui transfer ke rekening<br>
+                        <b>{{ websetting.rekening_tujuan }}</b>.
+                    </p>
+                    <p v-if="websetting?.rekening_type === 'QRIS'">
+                        Iuran bisa dibayarkan melalui <b>QRIS</b>.
+                    </p>
+                    <p class="mt-2">Paling lambat tgl 12 nggih Bpk Ibu 🙏</p>
+                </div>
                 <div class="mt-10 pt-6 border-t font-medium border-stone-100 text-stone-400 text-sm text-center">
                     Diunduh dari Sistem Informasi Perumahan {{ websetting.website_name }}
+                </div>
+            </div>
+        </div>
+
+        <!-- QRIS Modal Overlay -->
+        <div v-if="showQrisModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0">
+            <div class="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" @click="showQrisModal = false"></div>
+            <div class="relative bg-white rounded-3xl overflow-hidden shadow-2xl max-w-sm w-full animate-in fade-in zoom-in-95 duration-200">
+                <div class="px-6 py-4 border-b border-stone-100 flex justify-between items-center bg-stone-50/50">
+                    <h3 class="font-black text-stone-800 tracking-tight text-lg">Tampilan QRIS</h3>
+                    <button @click="showQrisModal = false" class="p-2 hover:bg-stone-200 text-stone-500 rounded-full transition-colors active:scale-90">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+                <div class="p-6">
+                    <img :src="websetting?.qris_image_path" alt="QRIS" class="w-full h-auto rounded-xl object-contain" />
+                    <p class="text-center mt-4 text-sm font-medium text-stone-500">Scan QR Code ini untuk membayar Iuran</p>
                 </div>
             </div>
         </div>

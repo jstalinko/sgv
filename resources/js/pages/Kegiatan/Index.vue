@@ -2,6 +2,9 @@
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { computed } from 'vue';
 import { Calendar, Clock, CheckCircle2 } from 'lucide-vue-next';
+import { usePage } from '@inertiajs/vue3';
+
+const websetting = usePage().props.websetting as any;
 
 const props = defineProps<{
     kegiatan: Array<any>;
@@ -22,7 +25,7 @@ const formatTime = (dateStr: string) => new Intl.DateTimeFormat('id-ID', { timeS
                 <div class="text-center mb-16">
                     <p class="text-xs font-black text-amber-600 uppercase tracking-[0.3em] mb-4">Program Komunitas</p>
                     <h1 class="text-5xl font-black text-stone-900 leading-tight">Kegiatan <span class="text-amber-600">Warga</span></h1>
-                    <p class="text-stone-500 font-medium mt-4 text-lg">Forum dan aktivitas bersama warga Perumahan Suryo Green Village.</p>
+                    <p class="text-stone-500 font-medium mt-4 text-lg">Forum dan aktivitas bersama warga Perumahan {{ websetting.website_name }}.</p>
                 </div>
 
                 <!-- Upcoming Events -->

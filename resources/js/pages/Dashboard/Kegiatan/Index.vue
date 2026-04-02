@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { type BreadcrumbItem } from '@/types';
 import {
@@ -17,6 +17,8 @@ import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+
+const websetting = usePage().props.websetting as any;
 
 const props = defineProps<{
     kegiatan: {
@@ -110,7 +112,7 @@ const isUpcoming = (tanggal: string) => new Date(tanggal) > new Date();
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-foreground">Manajemen Kegiatan</h1>
-                    <p class="text-muted-foreground mt-1">Kelola program dan aktivitas komunitas Suryo Green Village.</p>
+                    <p class="text-muted-foreground mt-1">Kelola program dan aktivitas komunitas {{ websetting.website_name }}.</p>
                 </div>
                 <Button @click="openCreateModal" class="bg-amber-600 hover:bg-amber-700 text-white gap-2 px-6 py-6 rounded-xl shadow-lg shadow-amber-100 font-bold">
                     <Plus class="w-5 h-5" /> Tambah Kegiatan

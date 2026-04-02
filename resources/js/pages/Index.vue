@@ -93,7 +93,7 @@ const communityFeatures = [
                         <div class="absolute -inset-4 bg-amber-200/20 rounded-[40px] blur-3xl group-hover:bg-amber-200/30 transition-colors"></div>
                         <div class="relative rounded-[40px] overflow-hidden shadow-2xl shadow-amber-200/50 aspect-[4/5] md:aspect-[4/3] lg:aspect-square ring-4 ring-white">
                             <img src="/banner.jpg" 
-                                 alt="Lingkungan Suryo Green Village" 
+                                 :alt="'Lingkungan ' + websetting.website_name" 
                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                  loading="lazy" />
                             
@@ -276,14 +276,14 @@ const communityFeatures = [
                         </div>
                         <h2 class="text-3xl md:text-5xl font-black text-white leading-tight">
                             Mari Ikut Serta Membangun <br />
-                            Suryo Green Village <br />
+                            {{ websetting.website_name }} <br />
                             <span class="text-amber-500">Menjadi Lebih Baik</span>
                     </h2>
                         <p class="text-stone-400 text-lg leading-relaxed">
                             Punya saran atau laporan terkait lingkungan? Tim pengurus siap membantu dan menampung aspirasi setiap warga untuk kenyamanan bersama.
                         </p>
                         <div class="flex flex-wrap justify-center gap-4 pt-4">
-                            <a href="https://wa.me/6281233334444" 
+                            <a :href="websetting.contact_center" 
                                class="bg-amber-600 text-white px-10 py-5 rounded-3xl font-bold text-lg hover:bg-amber-700 hover:scale-105 transition-all shadow-xl shadow-amber-900/40">
                                 WhatsApp Pengurus
                             </a>

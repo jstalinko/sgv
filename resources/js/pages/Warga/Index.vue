@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { type BreadcrumbItem } from '@/types';
 import { 
@@ -32,6 +32,8 @@ import {
 const props = defineProps<{
     warga: Array<any>;
 }>();
+
+const websetting = usePage().props.websetting as any;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -123,8 +125,8 @@ const deleteWarga = () => {
         <div class="p-6 space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold tracking-tight text-foreground">Data Warga</h1>
-                    <p class="text-muted-foreground mt-1">Kelola informasi penghuni Perumahan Suryo Green Village.</p>
+                    <h1 class="text-3xl font-black font-bold tracking-tight text-foreground">Data Warga</h1>
+                    <p class="text-muted-foreground mt-1">Kelola informasi penghuni Perumahan {{ websetting.website_name }}.</p>
                 </div>
                 
                 <Button @click="openCreateModal" class="bg-amber-600 hover:bg-amber-700 text-white gap-2 px-6 py-6 rounded-xl shadow-lg shadow-amber-100 transition-all font-bold">

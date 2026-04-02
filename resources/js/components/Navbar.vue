@@ -41,9 +41,9 @@ const navigation = [
                         
                       
 
-                        <Link href="/laporan" class="bg-amber-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-amber-200 hover:bg-amber-700 transition-all active:scale-95">
+                        <a :href="websetting.contact_center" class="bg-amber-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-amber-200 hover:bg-amber-700 transition-all active:scale-95">
                             Hubungi
-                        </Link>
+                        </a>
                     </div>
                 </div>
 
@@ -72,9 +72,9 @@ const navigation = [
                 <div class="pt-4 px-4 space-y-3 border-t border-amber-50 pt-4">
                   
 
-                    <Link href="/laporan" class="flex justify-center bg-amber-600 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-amber-200 hover:bg-amber-700 w-full transition-all">
+                    <a :href="websetting.contact_center" class="flex justify-center bg-amber-600 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-amber-200 hover:bg-amber-700 w-full transition-all">
                         Kontak Pengurus
-                    </Link>
+                    </a>
                 </div>
             </div>
         </div>

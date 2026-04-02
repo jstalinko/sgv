@@ -45,8 +45,8 @@ class WebSettingController extends Controller
         }
 
         if ($request->hasFile('qris_image')) {
-            $path = $request->file('qris_image')->store('public/qris');
-            $validated['qris_image_path'] = Storage::url($path);
+            $path = $request->file('qris_image')->store('qris', 'public');
+            $validated['qris_image_path'] = Storage::disk('public')->url($path);
         } else {
             if (isset($settings['qris_image_path']) && !isset($validated['qris_image'])) {
                 $validated['qris_image_path'] = $settings['qris_image_path'];

@@ -23,6 +23,8 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const page = usePage() as any;
+
 const form = useForm({
     website_name: props.settings?.website_name || '',
     short_description: props.settings?.short_description || '',
@@ -71,7 +73,7 @@ function submit() {
                     <CardDescription>Update your website information and configuration here.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div v-if="form.recentlySuccessful || $page.props.flash?.success" class="mb-6 rounded-md bg-green-50 p-4 border border-green-200 dark:bg-green-900/20 dark:border-green-900/50">
+                    <div v-if="form.recentlySuccessful || page.props.flash?.success" class="mb-6 rounded-md bg-green-50 p-4 border border-green-200 dark:bg-green-900/20 dark:border-green-900/50">
                         <div class="flex">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -80,7 +82,7 @@ function submit() {
                             </div>
                             <div class="ml-3">
                                 <p class="text-sm font-medium text-green-800 dark:text-green-300">
-                                    {{ $page.props.flash?.success || 'Settings saved successfully.' }}
+                                    {{ page.props.flash?.success || 'Settings saved successfully.' }}
                                 </p>
                             </div>
                         </div>

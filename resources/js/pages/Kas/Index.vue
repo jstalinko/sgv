@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { ref, watch } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
+import { useForm, router, usePage } from '@inertiajs/vue3';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { TrendingUp, TrendingDown, Wallet, Calendar, Plus, X, Search, Filter, ArrowUpRight, ArrowDownLeft, Image as ImageIcon, FileText } from 'lucide-vue-next';
@@ -19,6 +19,8 @@ const props = defineProps<{
     filterTahun: number | null;
     availableYears: number[];
 }>();
+
+const websetting = usePage().props.websetting as any;
 
 const showAddExpense = ref(false);
 
@@ -150,7 +152,7 @@ const exportToPdf = async () => {
                 <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div class="space-y-2">
                         <h1 class="text-4xl font-black text-stone-900 tracking-tight">Kas <span class="text-amber-600">Perumahan</span></h1>
-                        <p class="text-stone-500 font-medium">Laporan keuangan transparan warga Perumahan Suryo Green Village.</p>
+                        <p class="text-stone-500 font-medium">Laporan keuangan transparan warga Perumahan {{ websetting.website_name }}.</p>
                     </div>
                     
                     <button v-if="can_edit"
@@ -378,7 +380,7 @@ const exportToPdf = async () => {
             <div id="export-kas-container" class="bg-white p-12 w-[800px] border border-stone-200 font-sans">
                 <!-- Header -->
                 <div class="text-center mb-8 border-b-2 border-stone-100 pb-6">
-                    <h2 class="text-3xl font-black text-stone-900 tracking-tight">LAPORAN KAS PERUMAHAN SGV</h2>
+                    <h2 class="text-3xl font-black text-stone-900 tracking-tight">LAPORAN KAS PERUMAHAN {{ websetting.website_name }}</h2>
                     <p class="text-xl font-bold text-amber-600 mt-2" v-if="selectedBulan && selectedTahun">
                         PERIODE {{ bulanNames[Number(selectedBulan)].toUpperCase() }} {{ selectedTahun }}
                     </p>
@@ -459,7 +461,7 @@ const exportToPdf = async () => {
                 </div>
 
                 <div class="mt-10 pt-6 border-t border-stone-100 text-stone-400 text-sm text-center font-medium">
-                    Diunduh dari Sistem Informasi Perumahan SGV pada {{ new Date().toLocaleString('id-ID') }}
+                    Diunduh dari Sistem Informasi Perumahan {{ websetting.website_name }} pada {{ new Date().toLocaleString('id-ID') }}
                 </div>
             </div>
         </div>

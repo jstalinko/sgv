@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import HomeLayout from '@/layouts/HomeLayout.vue';
 import { Calendar, Clock, CheckCircle2, CalendarX } from 'lucide-vue-next';
+import { usePage } from '@inertiajs/vue3';
+
+const websetting = usePage().props.websetting as any;
 
 defineProps<{
     upcoming: Array<any>;
@@ -26,7 +29,7 @@ const formatTime = (dateStr: string) =>
                         Jadwal <span class="text-amber-600">Kegiatan</span>
                     </h1>
                     <p class="text-stone-500 mt-4 text-lg font-medium max-w-xl mx-auto">
-                        Program dan agenda bersama warga Perumahan Suryo Green Village.
+                        Program dan agenda bersama warga Perumahan {{ websetting.website_name }}.
                     </p>
                 </div>
 
