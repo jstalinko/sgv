@@ -431,7 +431,7 @@ const isFiltered = () => !!selectedBulan.value || !!selectedTahun.value;
                     <div class="space-y-2">
                         <Label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Bukti File (Pilihan)</Label>
                         <div class="relative group/upload">
-                            <input type="file" @change="handleFileUpload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                            <input type="file" @change="handleFileUpload" accept="image/*,.heic,.heif" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             <div class="w-full px-5 py-4 bg-muted/10 border-2 border-dashed border-muted rounded-2xl flex items-center justify-between group-hover/upload:border-amber-400 transition-colors">
                                 <div class="flex items-center gap-3">
                                     <ImageIcon class="w-5 h-5 text-muted-foreground" />
@@ -442,6 +442,7 @@ const isFiltered = () => !!selectedBulan.value || !!selectedTahun.value;
                                 <Plus class="w-4 h-4 text-muted-foreground" />
                             </div>
                         </div>
+                        <p class="text-[10px] text-muted-foreground ml-1 opacity-70 italic">Mendukung JPG, PNG, HEIC, WEBP — Maks. 10MB — Kompresi otomatis ke WebP</p>
                     </div>
 
                     <DialogFooter class="pt-6">

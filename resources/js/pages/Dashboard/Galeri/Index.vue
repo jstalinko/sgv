@@ -146,7 +146,7 @@ const onDrop = (e: DragEvent) => {
     if (!files) return;
 
     Array.from(files)
-        .filter(f => f.type.startsWith('image/'))
+        .filter(f => f.type.startsWith('image/') || f.name.match(/\.(heic|heif)$/i))
         .forEach(file => {
             const reader = new FileReader();
             reader.onload = (ev) => {
@@ -225,7 +225,7 @@ const onDrop = (e: DragEvent) => {
                     <input
                         type="file"
                         multiple
-                        accept="image/*"
+                        accept="image/*,.heic,.heif"
                         @change="handleMultiFileSelect"
                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
@@ -235,7 +235,7 @@ const onDrop = (e: DragEvent) => {
                         </div>
                         <div class="text-center">
                             <p class="font-black text-sm text-foreground">{{ isDragging ? 'Lepaskan foto di sini' : 'Seret & lepas atau klik untuk pilih foto' }}</p>
-                            <p class="text-xs text-muted-foreground mt-1">Pilih banyak foto sekaligus — JPG, PNG, WEBP — Maks. 5MB/foto</p>
+                            <p class="text-xs text-muted-foreground mt-1">Pilih banyak foto sekaligus — JPG, PNG, HEIC, WEBP — Maks. 10MB/foto — otomatis dikompresi ke WebP</p>
                         </div>
                         <div v-if="uploadItems.length > 0" class="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-full text-xs font-black">
                             <CheckCircle2 class="w-3.5 h-3.5" />
@@ -321,7 +321,7 @@ const onDrop = (e: DragEvent) => {
                     <div class="space-y-2">
                         <Label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Ganti Foto (Pilihan)</Label>
                         <div class="relative group/upload cursor-pointer">
-                            <input type="file" @change="handleEditFile" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                            <input type="file" @change="handleEditFile" accept="image/*,.heic,.heif" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             <div class="px-5 py-4 bg-muted/10 border-2 border-dashed border-muted rounded-2xl flex items-center gap-3 group-hover/upload:border-amber-400 transition-colors">
                                 <ImageIcon class="w-5 h-5 text-muted-foreground shrink-0" />
                                 <span class="text-xs font-bold text-muted-foreground truncate">

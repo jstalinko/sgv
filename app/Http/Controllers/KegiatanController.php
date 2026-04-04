@@ -6,9 +6,11 @@ use App\Models\Kegiatan;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Traits\CompressesImages;
 
 class KegiatanController extends Controller
 {
+    use CompressesImages;
     public function index()
     {
         $kegiatan = Kegiatan::orderByDesc('tanggal')->get()->map(function($item) {
@@ -56,12 +58,12 @@ class KegiatanController extends Controller
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'tanggal' => 'required|date',
-            'gambar' => 'nullable|image|max:2048',
+            'gambar' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,bmp,tiff,tif,heic,heif,webp',
         ]);
 
         $path = null;
         if ($request->hasFile('gambar')) {
-            $path = $request->file('gambar')->store('kegiatan', 'public');
+            $path = $this->compressToWebp($request->file('gambar'), 'kegiatan');
         }
 
         Kegiatan::create([
@@ -80,7 +82,7 @@ class KegiatanController extends Controller
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'tanggal' => 'required|date',
-            'gambar' => 'nullable|image|max:2048',
+            'gambar' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,bmp,tiff,tif,heic,heif,webp',
         ]);
 
         $data = $request->only(['judul', 'deskripsi', 'tanggal']);
@@ -89,7 +91,7 @@ class KegiatanController extends Controller
             if ($kegiatan->gambar) {
                 Storage::disk('public')->delete($kegiatan->gambar);
             }
-            $data['gambar'] = $request->file('gambar')->store('kegiatan', 'public');
+            $data['gambar'] = $this->compressToWebp($request->file('gambar'), 'kegiatan');
         }
 
         $kegiatan->update($data);

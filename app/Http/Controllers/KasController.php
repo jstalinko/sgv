@@ -6,9 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Kas;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Traits\CompressesImages;
 
 class KasController extends Controller
 {
+    use CompressesImages;
     private function buildFilteredData(Request $request): array
     {
         $bulan = $request->input('bulan'); // 1-12 or null
@@ -83,12 +86,12 @@ class KasController extends Controller
             'jumlah' => 'required|numeric|min:0',
             'keterangan' => 'nullable|string',
             'tanggal' => 'required|date',
-            'bukti' => 'nullable|image|max:2048',
+            'bukti' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,bmp,tiff,tif,heic,heif,webp',
         ]);
 
         $buktiPath = null;
         if ($request->hasFile('bukti')) {
-            $buktiPath = $request->file('bukti')->store('bukti_kas', 'public');
+            $buktiPath = $this->compressToWebp($request->file('bukti'), 'bukti_kas');
         }
 
         Kas::create([
@@ -120,7 +123,7 @@ class KasController extends Controller
             'jumlah' => 'required|numeric|min:0',
             'keterangan' => 'nullable|string',
             'tanggal' => 'required|date',
-            'bukti' => 'nullable|image|max:2048',
+            'bukti' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,bmp,tiff,tif,heic,heif,webp',
         ]);
 
         $data = $request->except('bukti');
@@ -128,9 +131,9 @@ class KasController extends Controller
         if ($request->hasFile('bukti')) {
             // Delete old proof if exists
             if ($ka->bukti) {
-                \Storage::disk('public')->delete($ka->bukti);
+                Storage::disk('public')->delete($ka->bukti);
             }
-            $data['bukti'] = $request->file('bukti')->store('bukti_kas', 'public');
+            $data['bukti'] = $this->compressToWebp($request->file('bukti'), 'bukti_kas');
         }
 
         $ka->update($data);

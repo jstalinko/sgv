@@ -226,7 +226,7 @@ const isUpcoming = (tanggal: string) => new Date(tanggal) > new Date();
                     <div class="space-y-2">
                         <Label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Foto Kegiatan (Pilihan)</Label>
                         <div class="relative group/upload cursor-pointer">
-                            <input type="file" @change="handleFileUpload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                            <input type="file" @change="handleFileUpload" accept="image/*,.heic,.heif" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             <div class="px-5 py-4 bg-muted/10 border-2 border-dashed border-muted rounded-2xl flex items-center gap-3 group-hover/upload:border-amber-400 transition-colors">
                                 <ImageIcon class="w-5 h-5 text-muted-foreground shrink-0" />
                                 <span class="text-xs font-bold text-muted-foreground truncate">
@@ -234,6 +234,7 @@ const isUpcoming = (tanggal: string) => new Date(tanggal) > new Date();
                                 </span>
                             </div>
                         </div>
+                        <p class="text-[10px] text-muted-foreground ml-1 opacity-70 italic">Mendukung JPG, PNG, HEIC, WEBP — Maks. 10MB — Kompresi otomatis ke WebP</p>
                     </div>
                     <DialogFooter class="pt-2">
                         <Button type="button" variant="ghost" @click="showModal = false" class="rounded-xl font-bold h-11">Batal</Button>

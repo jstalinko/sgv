@@ -6,9 +6,12 @@ use App\Models\Galeri;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Traits\CompressesImages;
 
 class GaleriController extends Controller
 {
+    use CompressesImages;
+
     public function index()
     {
         $galeri = Galeri::orderByDesc('created_at')->get();
@@ -31,11 +34,11 @@ class GaleriController extends Controller
             'items' => 'required|array|min:1',
             'items.*.judul' => 'required|string|max:255',
             'items.*.deskripsi' => 'nullable|string',
-            'items.*.gambar' => 'required|image|max:5120',
+            'items.*.gambar' => 'required|file|max:10240|mimes:jpg,jpeg,png,gif,bmp,tiff,tif,heic,heif,webp',
         ]);
 
         foreach ($request->file('items') as $index => $item) {
-            $path = $item['gambar']->store('galeri', 'public');
+            $path = $this->compressToWebp($item['gambar']);
             Galeri::create([
                 'judul' => $request->input("items.{$index}.judul"),
                 'deskripsi' => $request->input("items.{$index}.deskripsi"),
@@ -51,7 +54,7 @@ class GaleriController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'gambar' => 'nullable|image|max:5120',
+            'gambar' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,bmp,tiff,tif,heic,heif,webp',
         ]);
 
         $data = $request->only(['judul', 'deskripsi']);
@@ -60,7 +63,7 @@ class GaleriController extends Controller
             if ($galeri->gambar) {
                 Storage::disk('public')->delete($galeri->gambar);
             }
-            $data['gambar'] = $request->file('gambar')->store('galeri', 'public');
+            $data['gambar'] = $this->compressToWebp($request->file('gambar'));
         }
 
         $galeri->update($data);
@@ -78,3 +81,4 @@ class GaleriController extends Controller
         return redirect()->back()->with('message', 'Foto galeri berhasil dihapus');
     }
 }
+
